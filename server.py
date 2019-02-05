@@ -39,7 +39,7 @@ async def github(request):
         abort(501)
 
     # HMAC requires the key to be bytes, but data is string
-    mac = hmac.new(str(secret), msg=request.data, digestmod=hashlib.sha1)
+    mac = hmac.new(str(secret), msg=request.body, digestmod=hashlib.sha1)
 
     if not hmac.compare_digest(str(mac.hexdigest()), str(signature)):
         abort(403)
