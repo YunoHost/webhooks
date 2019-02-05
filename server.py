@@ -48,6 +48,7 @@ async def github(request):
 
     print(f"Hook type: {hook_type}")
 
+    # https://developer.github.com/v3/activity/events/types/#pushevent
     if hook_type == "push":
         repository = request.json["repository"]["name"]
         commits = request.json["commits"]
