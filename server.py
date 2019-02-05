@@ -11,7 +11,7 @@ from sanic.exceptions import abort
 app = Sanic()
 
 secret = open("./github_webhook_secret", "r").read().strip()
-gitbot_password = open("./github_webhook_secret", "r").read().strip()
+gitbot_password = open("./gitbot_password", "r").read().strip()
 
 other_chans = {
     "doc": "doc",
