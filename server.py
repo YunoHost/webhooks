@@ -65,15 +65,7 @@ async def github(request):
                 commit_message = commit["message"]
                 notify(f"[{repository}/{branch}] {commit_message} - {author}")
 
-"""
-2019-01-30 15:26:41 yunobridge <GitBot> [yunohost] @alexAubin commented on issue #636: >you can completly remove the CCC server... https://github.com/YunoHost/yunohost/pull/636#issuecomment-458962632
-"""
-
-    # if hook_type == "pull_request":
-        # project = request.json["repository"]["name"]
-        # number = request.json["pull_request"]["number"]
-
-        # print("reimporting pr %s#%s" % (project, number))
+    return text("ok")
 
 
 @app.route("/")
