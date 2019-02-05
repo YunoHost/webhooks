@@ -8,6 +8,8 @@ from sanic.exceptions import abort
 
 app = Sanic()
 
+secret = open("./github_webhook_secret", "r").read().strip()
+
 other_chans = {
     "doc": "doc",
 }
@@ -25,8 +27,6 @@ def notify(message, chan="dev"):
 
 @app.route("/github", methods=['POST'])
 async def github(request):
-    secret = open("./github_webhook_secret", "r").read().strip()
-
     # Only SHA1 is supported
     header_signature = request.headers.get('X-Hub-Signature')
     if header_signature is None:
