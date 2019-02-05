@@ -66,6 +66,15 @@ async def github(request):
                 commit_message = commit["message"]
                 notify(f"[{repository}/{branch}] {commit_message} - {author}")
 
+    # https://developer.github.com/v3/activity/events/types/#commitcommentevent
+    elif hook_type == "commit_comment":
+        repository = request.json["repository"]["name"]
+        user = request.json["comment"]["user"]["login"]
+        commit_short_id = request.json["comment"]["commit_id"][:7]
+        comment = request.json["comment"]["body"]
+
+        notify(f"[{repository}] @{user} comment on commit {commit_short_id}: {comment} {url}")
+
     return text("ok")
 
 
