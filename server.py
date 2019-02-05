@@ -1,5 +1,7 @@
+import os
 import hmac
 import hashlib
+import subprocess
 
 from sanic import Sanic
 from sanic.response import text
@@ -9,6 +11,7 @@ from sanic.exceptions import abort
 app = Sanic()
 
 secret = open("./github_webhook_secret", "r").read().strip()
+gitbot_password = open("./github_webhook_secret", "r").read().strip()
 
 other_chans = {
     "doc": "doc",
@@ -23,6 +26,7 @@ other_chans = {
 
 def notify(message, chan="dev"):
     print(f"{chan} -> {message}")
+    subprocess.check_call(["python", "./to_room.py", gitbot_password, message, chan], shell=True)
 
 
 @app.route("/github", methods=['POST'])
