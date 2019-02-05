@@ -66,7 +66,7 @@ async def github(request):
             url = request.json["compare"]
             notify(f"[{repository}] @{user} pushed {len(commits)}s to {branch}: {url}")
             for commit in commits:
-                author = commit["author"]
+                author = commit["author"]["name"]
                 commit_message = commit["message"]
                 notify(f"[{repository}/{branch}] {commit_message} - {author}")
 
