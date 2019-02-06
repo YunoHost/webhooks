@@ -79,7 +79,7 @@ async def github(request):
         repository = request.json["repository"]["name"]
         user = request.json["comment"]["user"]["login"]
         commit_short_id = request.json["comment"]["commit_id"][:7]
-        comment = request.json["comment"]["body"]
+        comment = request.json["comment"]["body"].replace("\n", " ")
 
         notify(f"[{repository}] @{user} comment on commit {commit_short_id}: {comment} {url}")
 
@@ -125,7 +125,7 @@ async def github(request):
         url = request.json["comment"]["html_url"]
         issue_number = request.json["issue"]["number"]
         issue_title = request.json["issue"]["title"]
-        comment = request.json["comment"]["body"]
+        comment = request.json["comment"]["body"].replace("\n", " ")
 
         if len(comment) > 120:
             comment = comment[:120] + "..."
@@ -190,7 +190,7 @@ async def github(request):
         repository = request.json["repository"]["name"]
         user = request.json["sender"]["login"]
         pull_request_number = request.json["pull_request"]["number"]
-        comment = request.json["comment"]["body"]
+        comment = request.json["comment"]["body"].replace("\n", " ")
         url = request.json["comment"]["html_url"]
 
         if len(comment) > 120:
@@ -208,7 +208,7 @@ async def github(request):
 
         if action == "submitted":
             state = request.json["review"]["state"]
-            comment = request.json["review"]["body"]
+            comment = request.json["review"]["body"].replace("\n", " ")
             if comment and len(comment) > 120:
                 comment = ": " + comment[:120] + "..."
             elif not comment:
@@ -229,7 +229,7 @@ async def github(request):
         pull_request_number = request.json["pull_request"]["number"]
         pull_request_title = request.json["pull_request"]["title"]
         url = request.json["pull_request"]["html_url"]
-        comment = request.json["pull_request"]["body"]
+        comment = request.json["pull_request"]["body"].replace("\n", " ")
 
         if action in ("opened", "edited", "deleted", "transferred", "pinned",
                       "unpinned", "reopened"):
