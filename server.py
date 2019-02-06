@@ -127,6 +127,40 @@ async def github(request):
 
         notify(f"[{repository}] @{user} commented on issue #{issue_number}: {comment} {url}")
 
+    # https://developer.github.com/v3/activity/events/types/#issuesevent
+    elif hook_type == "issues":
+        action = request.json["action"]
+        repository = request.json["repository"]["name"]
+        user = request.json["sender"]["login"]
+        issue_number = request.json["issue"]["number"]
+        url = request.json["issue"]["html_url"]
+        issue_title = request.json["issue"]["title"]
+
+        if action == "opened":
+            notify(f"[{repository}] @{user} {action} issue #{issue_number}: {issue_title} {url}")
+
+        elif action in ("edited", "deleted", "transferred", "pinned",
+                        "unpinned", "closed", "reopened"):
+            notify(f"[{repository}] @{user} {action} issue #{issue_number}: {issue_title} {url}")
+
+        elif action in ("assigned", "unassigned"):
+            assigned_user = request.json["assignee"]
+            notify(f"[{repository}] @{user} {action} {assigned_user} on issue #{issue_number}: {issue_title} {url}")
+
+        elif action in ("labeled", "unlabeled"):
+            label = request.json["label"]
+            notify(f"[{repository}] @{user} {action} {label} on issue #{issue_number}: {issue_title} {url}")
+
+        elif action == "milestoned":
+            milestone = request.json["issue"]["milestone"]
+            notify(f"[{repository}] @{user} {action} {milestone} issue #{issue_number}: {issue_title} {url}")
+
+        elif action == "demilestoned":
+            notify(f"[{repository}] @{user} {action} issue #{issue_number}: {issue_title} {url}")
+
+        else:
+            notify(f"WARNING: unknown 'issues' action: {action}")
+
     return text("ok")
 
 
