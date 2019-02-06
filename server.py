@@ -213,13 +213,13 @@ async def github(request):
 
         if action == "submitted":
             state = request.json["review"]["state"]
-            comment = request.json["review"]["body"].replace("\r\n", " ")
+            comment = request.json["review"]["body"]
             if comment and len(comment) > 120:
-                comment = ": " + comment[:120] + "..."
+                comment = ": " + comment[:120].replace("\r\n", " ") + "..."
             elif not comment:
                 comment = ""
             else:
-                comment = ": " + comment
+                comment = ": " + comment.replace("\r\n", " ")
 
             notify(f"[{repository}] @{user} {state} pull request #{pull_request_number} {pull_request_title}{comment} {url}")
 
