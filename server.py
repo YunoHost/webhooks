@@ -112,7 +112,7 @@ async def github(request):
         user = request.json["sender"]["login"]
         url = request.json["forkee"]["html_url"]
 
-        notify(f"@{user} forked {repository} to {forked_repository} : {url}")
+        notify(f"@{user} forked {repository} to {forked_repository}: {url}")
 
     # https://developer.github.com/v3/activity/events/types/#issuecommentevent
     elif hook_type == "issue_comment":
