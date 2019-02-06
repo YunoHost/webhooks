@@ -284,6 +284,17 @@ async def github(request):
 
         notify(f"[repository] @{user} {action} new release #{release_tag} {release_title} {url}")
 
+    # https://developer.github.com/v3/activity/events/types/#statusevent
+    elif hook_type == "release":
+        state = request.json["state"]
+        description = request.json["description"]
+        target_url = request.json["target_url"]
+        repository = request.json["repository"]["name"]
+        user = request.json["sender"]["login"]
+        url = request.json["commit"]["html_url"]
+
+        print(f"Status weird stuff: [{repository}] @{user} state: {state}, description: {description}, target_url: {target_url} - {url}")
+
     return text("ok")
 
 
