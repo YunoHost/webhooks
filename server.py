@@ -229,7 +229,7 @@ async def github(request):
         pull_request_number = request.json["pull_request"]["number"]
         pull_request_title = request.json["pull_request"]["title"]
         url = request.json["pull_request"]["html_url"]
-        comment = request.json["comment"]["body"]
+        comment = request.json["pull_request"]["body"]
 
         if action in ("opened", "edited", "deleted", "transferred", "pinned",
                       "unpinned", "reopened"):
