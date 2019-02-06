@@ -114,6 +114,19 @@ async def github(request):
 
         notify(f"@{user} forked {repository} to {forked_repository} : {url}")
 
+    # https://developer.github.com/v3/activity/events/types/#issuecommentevent
+    elif hook_type == "issue_comment":
+        repository = request.json["repository"]["name"]
+        user = request.json["sender"]["login"]
+        url = request.json["comment"]["html_url"]
+        issue_number = request.json["issue"]["number"]
+        comment = request.json["comment"]["body"]
+
+        if len(comment) > 120:
+            comment = comment[:120] + "..."
+
+        notify(f"[{repository}] @{user} commented on issue #{issue_number}: {comment} {url}")
+
     return text("ok")
 
 
