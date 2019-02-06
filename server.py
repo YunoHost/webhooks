@@ -67,7 +67,11 @@ async def github(request):
             notify(f"[{repository}] @{user} pushed {len(commits)} commits to {branch}: {url}")
             for commit in commits[-5:]:
                 author = commit["author"]["name"]
-                commit_message = commit["message"]
+                commit_message = commit["message"].replace("\n", " ")
+
+                if len(commit_message) > 120:
+                    commit_message = commit_message[120:] + "..."
+
                 notify(f"[{repository}/{branch}] {commit_message} - {author}")
 
     # https://developer.github.com/v3/activity/events/types/#commitcommentevent
