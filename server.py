@@ -61,10 +61,10 @@ async def github(request):
 
         if len(commits) == 1:
             url = commits[0]["url"]
-            notify(f"[{repository}] @{user} pushed {len(commits)} to {branch}: {url}")
+            notify(f"[{repository}] @{user} pushed {len(commits)} commit to {branch}: {url}")
         else:
             url = request.json["compare"]
-            notify(f"[{repository}] @{user} pushed {len(commits)}s to {branch}: {url}")
+            notify(f"[{repository}] @{user} pushed {len(commits)} commits to {branch}: {url}")
             for commit in commits:
                 author = commit["author"]["name"]
                 commit_message = commit["message"]
