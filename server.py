@@ -161,6 +161,15 @@ async def github(request):
         else:
             notify(f"WARNING: unknown 'issues' action: {action}")
 
+    # https://developer.github.com/v3/activity/events/types/#labelevent
+    elif hook_type == "label":
+        action = request.json["action"]
+        label = request.json["label"]
+        repository = request.json["repository"]["name"]
+        user = request.json["sender"]["login"]
+
+        notify(f"[{repository}] @{user} {action} label {label}")
+
     return text("ok")
 
 
