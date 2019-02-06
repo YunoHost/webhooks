@@ -105,6 +105,15 @@ async def github(request):
         ref = request.json["ref"]
         notify(f"[{repository}] @{user} deleted {kind} {ref}")
 
+    # https://developer.github.com/v3/activity/events/types/#forkevent
+    elif hook_type == "fork":
+        repository = request.json["repository"]["name"]
+        forked_repository = request.json["forkee"]["full_name"]
+        user = request.json["sender"]["login"]
+        url = request.json["forkee"]["html_url"]
+
+        notify(f"@{user} forked {repository} to {forked_repository} : {url}")
+
     return text("ok")
 
 
