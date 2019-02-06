@@ -61,7 +61,12 @@ async def github(request):
 
         if len(commits) == 1:
             url = commits[0]["url"]
-            notify(f"[{repository}] @{user} pushed {len(commits)} commit to {branch}: {url}")
+            commit_message = commits[0]["message"].replace("\r\n", " ")
+
+            if len(commit_message) > 120:
+                commit_message = commit_message[120:] + "..."
+
+            notify(f"[{repository}] @{user} pushed {len(commits)} commit to {branch}: {commit_message} {url}")
         else:
             url = request.json["compare"]
             notify(f"[{repository}] @{user} pushed {len(commits)} commits to {branch}: {url}")
