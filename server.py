@@ -26,7 +26,7 @@ other_chans = {
 
 def notify(message, chan="dev"):
     print(f"{chan} -> {message}")
-    subprocess.check_call(["python", "./to_room.py", gitbot_password, message, chan], shell=True)
+    subprocess.check_call(["python", "./to_room.py", gitbot_password, message, chan])
 
 
 @app.route("/github", methods=['POST'])
