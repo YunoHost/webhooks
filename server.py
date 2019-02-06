@@ -67,7 +67,7 @@ async def github(request):
             notify(f"[{repository}] @{user} pushed {len(commits)} commits to {branch}: {url}")
             for commit in commits[-5:]:
                 author = commit["author"]["name"]
-                commit_message = commit["message"].replace("\n", " ")
+                commit_message = commit["message"].replace("\r\n", " ")
 
                 if len(commit_message) > 120:
                     commit_message = commit_message[120:] + "..."
@@ -79,7 +79,7 @@ async def github(request):
         repository = request.json["repository"]["name"]
         user = request.json["comment"]["user"]["login"]
         commit_short_id = request.json["comment"]["commit_id"][:7]
-        comment = request.json["comment"]["body"].replace("\n", " ")
+        comment = request.json["comment"]["body"].replace("\r\n", " ")
 
         notify(f"[{repository}] @{user} comment on commit {commit_short_id}: {comment} {url}")
 
@@ -125,7 +125,7 @@ async def github(request):
         url = request.json["comment"]["html_url"]
         issue_number = request.json["issue"]["number"]
         issue_title = request.json["issue"]["title"]
-        comment = request.json["comment"]["body"].replace("\n", " ")
+        comment = request.json["comment"]["body"].replace("\r\n", " ")
 
         if len(comment) > 120:
             comment = comment[:120] + "..."
@@ -190,7 +190,7 @@ async def github(request):
         repository = request.json["repository"]["name"]
         user = request.json["sender"]["login"]
         pull_request_number = request.json["pull_request"]["number"]
-        comment = request.json["comment"]["body"].replace("\n", " ")
+        comment = request.json["comment"]["body"].replace("\r\n", " ")
         url = request.json["comment"]["html_url"]
 
         if len(comment) > 120:
@@ -208,7 +208,7 @@ async def github(request):
 
         if action == "submitted":
             state = request.json["review"]["state"]
-            comment = request.json["review"]["body"].replace("\n", " ")
+            comment = request.json["review"]["body"].replace("\r\n", " ")
             if comment and len(comment) > 120:
                 comment = ": " + comment[:120] + "..."
             elif not comment:
@@ -229,7 +229,7 @@ async def github(request):
         pull_request_number = request.json["pull_request"]["number"]
         pull_request_title = request.json["pull_request"]["title"]
         url = request.json["pull_request"]["html_url"]
-        comment = request.json["pull_request"]["body"].replace("\n", " ")
+        comment = request.json["pull_request"]["body"].replace("\r\n", " ")
 
         if action in ("opened", "edited", "deleted", "transferred", "pinned",
                       "unpinned", "reopened"):
