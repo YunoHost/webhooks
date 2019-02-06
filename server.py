@@ -253,7 +253,7 @@ async def github(request):
         elif action == "demilestoned":
             notify(f"[{repository}] @{user} {action} pull_request #{pull_request_number}: {pull_request_title} {url}")
 
-        elif action in ("review_requested", "review_request_removed"):
+        elif action in ("review_requested", "review_request_removed", "synchronize"):
             pass  # we don't care about those...
 
         else:
