@@ -286,7 +286,7 @@ async def github(request):
         notify(f"[repository] @{user} {action} new release #{release_tag} {release_title} {url}")
 
     # https://developer.github.com/v3/activity/events/types/#statusevent
-    elif hook_type == "release":
+    elif hook_type == "status":
         state = request.json["state"]
         description = request.json["description"]
         target_url = request.json["target_url"]
