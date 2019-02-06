@@ -258,6 +258,21 @@ async def github(request):
         else:
             notify(f"WARNING: unknown 'pull_requests' action: {action}")
 
+    # https://developer.github.com/v3/activity/events/types/#repositoryevent
+    elif hook_type == "repository":
+        action = request.json["action"]
+        repository = request.json["repository"]["name"]
+        user = request.json["sender"]["login"]
+        url = request.json["repository"]["html_url"]
+        description = request.json["repository"]["description"]
+
+        if not description:
+            description = ""
+        else:
+            description = ": " + description
+
+        notify(f"@{user} {action} repository {repository}{description} {url}")
+
     return text("ok")
 
 
