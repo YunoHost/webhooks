@@ -179,6 +179,20 @@ async def github(request):
 
         notify(f"[{repository}] @{user} {action} milestone {milestone}")
 
+    # https://developer.github.com/v3/activity/events/types/#pullrequestreviewcommentevent
+    elif hook_type == "pull_request_review_comment":
+        action = request.json["action"]
+        repository = request.json["repository"]["name"]
+        user = request.json["sender"]["login"]
+        pull_request_number = request.json["pull_request"]["number"]
+        comment = request.json["comment"]["body"]
+        url = request.json["comment"]["html_url"]
+
+        if len(comment) > 120:
+            comment = comment[:120] + "..."
+
+        notify(f"[{repository}] @{user} {action} a comment on pull request #{pull_request_number}: {comment} {url}")
+
     return text("ok")
 
 
