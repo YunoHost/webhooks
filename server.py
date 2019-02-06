@@ -124,12 +124,13 @@ async def github(request):
         user = request.json["sender"]["login"]
         url = request.json["comment"]["html_url"]
         issue_number = request.json["issue"]["number"]
+        issue_title = request.json["issue"]["title"]
         comment = request.json["comment"]["body"]
 
         if len(comment) > 120:
             comment = comment[:120] + "..."
 
-        notify(f"[{repository}] @{user} commented on issue #{issue_number}: {comment} {url}")
+        notify(f"[{repository}] @{user} commented on issue #{issue_number} {issue_title}: {comment} {url}")
 
     # https://developer.github.com/v3/activity/events/types/#issuesevent
     elif hook_type == "issues":
