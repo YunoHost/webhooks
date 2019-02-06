@@ -86,13 +86,13 @@ async def github(request):
         repository = request.json["repository"]["name"]
 
         if kind == "repository":
-            f"@{user} created new repository {repository}: {url}"
+            notify(f"@{user} created new repository {repository}: {url}")
         elif kind == "branch":
             branch = request.json["ref"]
-            f"[{repository}] @{user} created new branch {branch}"
+            notify(f"[{repository}] @{user} created new branch {branch}")
         elif kind == "tag":
             tag = request.json["ref"]
-            f"[{repository}] @{user} created new tag {tag}"
+            notify(f"[{repository}] @{user} created new tag {tag}")
         else:
             print(f"WARNING: unknown 'create' even kind: {kind}")
 
