@@ -273,6 +273,17 @@ async def github(request):
 
         notify(f"@{user} {action} repository {repository}{description} {url}")
 
+    # https://developer.github.com/v3/activity/events/types/#releaseevent
+    elif hook_type == "release":
+        action = request.json["action"]
+        repository = request.json["repository"]["name"]
+        user = request.json["sender"]["login"]
+        url = request.json["release"]["html_url"]
+        release_tag = request.json["release"]["tag_name"]
+        release_title = request.json["release"]["name"]
+
+        notify(f"[repository] @{user} {action} new release #{release_tag} {release_title} {url}")
+
     return text("ok")
 
 
