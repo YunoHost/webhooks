@@ -247,7 +247,14 @@ async def github(request):
             pull_request_number = request.json["pull_request"]["number"]
             pull_request_title = request.json["pull_request"]["title"]
             url = request.json["pull_request"]["html_url"]
-            comment = request.json["pull_request"]["body"].replace("\r\n", " ")
+            comment = request.json["pull_request"]["body"]
+
+            if comment and len(comment) > 120:
+                comment = ": " + comment[:120].replace("\r\n", " ") + "..."
+            elif not comment:
+                comment = ""
+            else:
+                comment = ": " + comment.replace("\r\n", " ")
 
             if action in ("opened", "edited", "deleted", "transferred", "pinned",
                           "unpinned", "reopened"):
