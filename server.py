@@ -166,7 +166,7 @@ async def github(request):
                 notify(f"[{repository}] @{user} {action} issue #{issue_number}: {issue_title} {url}", repository=repository)
 
             elif action in ("assigned", "unassigned"):
-                assigned_user = request.json["assignee"]
+                assigned_user = request.json["assignee"]["login"]
                 notify(f"[{repository}] @{user} {action} {assigned_user} on issue #{issue_number}: {issue_title} {url}", repository=repository)
 
             elif action in ("labeled", "unlabeled"):
