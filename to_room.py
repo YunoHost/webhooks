@@ -38,7 +38,6 @@ def XMPPBot(password, room="dev"):
             connect()
             client.connected = True
 
-        print room
         client.send(xmpp.protocol.Message("%s@conference.yunohost.org" % room, message, typ="groupchat"))
 
     client.sendToChatRoom = sendToChatRoom
