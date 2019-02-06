@@ -94,7 +94,7 @@ async def github(request):
             tag = request.json["ref"]
             notify(f"[{repository}] @{user} created new tag {tag}")
         else:
-            print(f"WARNING: unknown 'create' even kind: {kind}")
+            print(f"WARNING: unknown 'create' event kind: {kind}")
 
     # https://developer.github.com/v3/activity/events/types/#createevent
     elif hook_type == "delete":
