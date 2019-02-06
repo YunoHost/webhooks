@@ -170,6 +170,15 @@ async def github(request):
 
         notify(f"[{repository}] @{user} {action} label {label}")
 
+    # https://developer.github.com/v3/activity/events/types/#milestoneevent
+    elif hook_type == "milestone":
+        action = request.json["action"]
+        repository = request.json["repository"]["name"]
+        user = request.json["sender"]["login"]
+        milestone = request.json["milestone"]["title"]
+
+        notify(f"[{repository}] @{user} {action} milestone {milestone}")
+
     return text("ok")
 
 
