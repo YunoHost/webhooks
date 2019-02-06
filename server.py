@@ -262,7 +262,7 @@ async def github(request):
 
             elif action in ("labeled", "unlabeled"):
                 label = request.json["label"]
-                notify(f"[{repository}] @{user} {action} {label} on issue #{issue_number}: {issue_title} {url}", repository=repository)
+                notify(f"[{repository}] @{user} {action} {label} on pull_request #{pull_request_number}: {pull_request_title} {url}", repository=repository)
 
             elif action == "closed":
                 if request.json["pull_request"]["merged"]:
