@@ -220,6 +220,44 @@ async def github(request):
         else:
             notify(f"[{repository}] @{user} {action} review pull request #{pull_request_number}: {pull_request_title} {url}")
 
+    # https://developer.github.com/v3/activity/events/types/#pullrequestevent
+    elif hook_type == "pull_request":
+        action = request.json["action"]
+        repository = request.json["repository"]["name"]
+        user = request.json["sender"]["login"]
+        pull_request_number = request.json["pull_request"]["number"]
+        pull_request_title = request.json["pull_request"]["title"]
+        url = request.json["pull_request"]["html_url"]
+        comment = request.json["comment"]["body"]
+
+        if action in ("opened", "edited", "deleted", "transferred", "pinned",
+                      "unpinned", "reopened"):
+            notify(f"[{repository}] @{user} {action} pull_request #{pull_request_number}: {pull_request_title} {url}")
+
+        elif action in ("labeled", "unlabeled"):
+            label = request.json["label"]
+            notify(f"[{repository}] @{user} {action} {label} on issue #{issue_number}: {issue_title} {url}")
+
+        elif action == "closed":
+            if request.json["pull_request"]["merged"]:
+                action = "merged"
+            notify(f"[{repository}] @{user} {action} {milestone} pull_request #{pull_request_number}: {pull_request_title} {url}")
+
+        # super weird, this action is not supposed to be possible for pull_request :|
+        elif action == "milestoned":
+            milestone = request.json["pull_request"]["milestone"]
+            notify(f"[{repository}] @{user} {action} {milestone} pull_request #{pull_request_number}: {pull_request_title} {url}")
+
+        # super weird, this action is not supposed to be possible for pull_request :|
+        elif action == "demilestoned":
+            notify(f"[{repository}] @{user} {action} pull_request #{pull_request_number}: {pull_request_title} {url}")
+
+        elif action in ("review_requested", "review_request_removed"):
+            pass  # we don't care about those...
+
+        else:
+            notify(f"WARNING: unknown 'pull_requests' action: {action}")
+
     return text("ok")
 
 
