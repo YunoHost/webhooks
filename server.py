@@ -79,6 +79,23 @@ async def github(request):
 
         notify(f"[{repository}] @{user} comment on commit {commit_short_id}: {comment} {url}")
 
+    # https://developer.github.com/v3/activity/events/types/#createevent
+    elif hook_type == "create":
+        kind = request.json["ref_type"]
+        user = request.json["sender"]["login"]
+        repository = request.json["repository"]["name"]
+
+        if kind == "repository":
+            f"@{user} created new repository {repository}: {url}"
+        elif kind == "branch":
+            branch = request.json["ref"]
+            f"[{repository}] @{user} created new branch {branch}"
+        elif kind == "tag":
+            tag = request.json["ref"]
+            f"[{repository}] @{user} created new tag {tag}"
+        else:
+            print(f"WARNING: unknown 'create' even kind: {kind}")
+
     return text("ok")
 
 
