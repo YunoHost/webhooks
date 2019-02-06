@@ -79,7 +79,7 @@ async def github(request):
                     commit_message = commit_message[120:] + "..."
 
                 notify(f"[{repository}] @{user} pushed {len(commits)} commit to {branch}: {commit_message} {url}", repository=repository)
-            else:
+            elif len(commits) > 1:
                 url = request.json["compare"]
                 notify(f"[{repository}] @{user} pushed {len(commits)} commits to {branch}: {url}", repository=repository)
                 for commit in commits[-5:]:
@@ -90,6 +90,8 @@ async def github(request):
                         commit_message = commit_message[120:] + "..."
 
                     notify(f"[{repository}/{branch}] {commit_message} - {author}", repository=repository)
+            else:
+                ...  # case of 0 which means branch deletion
 
         # https://developer.github.com/v3/activity/events/types/#commitcommentevent
         elif hook_type == "commit_comment":
