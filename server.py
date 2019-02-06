@@ -193,6 +193,29 @@ async def github(request):
 
         notify(f"[{repository}] @{user} {action} a comment on pull request #{pull_request_number}: {comment} {url}")
 
+    # https://developer.github.com/v3/activity/events/types/#pullrequestreviewevent
+    elif hook_type == "pull_request_review":
+        action = request.json["action"]
+        repository = request.json["repository"]["name"]
+        user = request.json["sender"]["login"]
+        pull_request_number = request.json["pull_request"]["number"]
+        pull_request_title = request.json["pull_request"]["title"]
+
+        if action == "submitted":
+            state = request.json["review"]["state"]
+            comment = request.json["review"]["body"]
+            if comment and len(comment) > 120:
+                comment = ": " + comment[:120] + "..."
+            elif not comment:
+                comment = ""
+            else:
+                comment = ": " + comment
+
+            notify(f"[{repository}] @{user} {state} pull request #{pull_request_number} {pull_request_title}{comment} {url}")
+
+        else:
+            notify(f"[{repository}] @{user} {action} review pull request #{pull_request_number}: {pull_request_title} {url}")
+
     return text("ok")
 
 
