@@ -50,6 +50,7 @@ async def github(request):
 
     hook_type = request.headers.get("X-Github-Event")
 
+    print()
     print(f"Hook type: {hook_type}")
 
     # https://developer.github.com/v3/activity/events/types/#pushevent
