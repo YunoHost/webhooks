@@ -336,4 +336,4 @@ async def index(request):
 
 
 if __name__ == '__main__':
-    app.run('localhost', port="4567", debug=True)
+    app.run('localhost', port="4567")
