@@ -249,7 +249,7 @@ async def github(request):
         elif action == "closed":
             if request.json["pull_request"]["merged"]:
                 action = "merged"
-            notify(f"[{repository}] @{user} {action} pull_request #{pull_request_number}: {pull_request_title} {url}")
+            notify(f"[{repository}] @{user} {action} pull request #{pull_request_number}: {pull_request_title} {url}")
 
         # super weird, this action is not supposed to be possible for pull_request :|
         elif action == "milestoned":
