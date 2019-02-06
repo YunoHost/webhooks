@@ -96,6 +96,15 @@ async def github(request):
         else:
             print(f"WARNING: unknown 'create' even kind: {kind}")
 
+    # https://developer.github.com/v3/activity/events/types/#createevent
+    elif hook_type == "delete":
+        kind = request.json["ref_type"]
+        user = request.json["sender"]["login"]
+        repository = request.json["repository"]["name"]
+
+        ref = request.json["ref"]
+        notify(f"[{repository}] @{user} deleted {kind} {ref}")
+
     return text("ok")
 
 
