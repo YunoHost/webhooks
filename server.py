@@ -210,7 +210,7 @@ async def github(request):
         user = request.json["sender"]["login"]
         pull_request_number = request.json["pull_request"]["number"]
         pull_request_title = request.json["pull_request"]["title"]
-        url = request.json["pull_request"]["html_url"]
+        url = request.json["review"]["html_url"]
 
         if action == "submitted":
             state = request.json["review"]["state"]
