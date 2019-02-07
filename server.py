@@ -39,6 +39,11 @@ def notify(message, repository="dev"):
     subprocess.check_call(["python", "./to_room.py", gitbot_password, message, chan])
 
 
+@app.route("/github", methods=['GET'])
+async def github_get(request):
+    return text("You aren't supposed to go on this page using a browser, it's for webhooks push instead.")
+
+
 @app.route("/github", methods=['POST'])
 async def github(request):
     # Only SHA1 is supported
