@@ -182,7 +182,7 @@ async def github(request):
 
             elif action == "milestoned":
                 milestone = request.json["issue"]["milestone"]["title"]
-                notify(f"[{repository}] @{user} {action} {milestone} on issue #{issue_number}: {issue_title} {url}", repository=repository)
+                notify(f"[{repository}] @{user} set {milestone} on issue #{issue_number}: {issue_title} {url}", repository=repository)
 
             elif action == "demilestoned":
                 notify(f"[{repository}] @{user} {action} issue #{issue_number}: {issue_title} {url}", repository=repository)
@@ -279,7 +279,7 @@ async def github(request):
             # super weird, this action is not supposed to be possible for pull_request :|
             elif action == "milestoned":
                 milestone = request.json["pull_request"]["milestone"]
-                notify(f"[{repository}] @{user} {action} {milestone} pull_request #{pull_request_number}: {pull_request_title} {url}", repository=repository)
+                notify(f"[{repository}] @{user} set {milestone} pull request #{pull_request_number}: {pull_request_title} {url}", repository=repository)
 
             # super weird, this action is not supposed to be possible for pull_request :|
             elif action == "demilestoned":
