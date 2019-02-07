@@ -265,11 +265,11 @@ async def github(request):
 
             if action in ("opened", "edited", "deleted", "transferred", "pinned",
                           "unpinned", "reopened"):
-                notify(f"[{repository}] @{user} {action} pull_request #{pull_request_number}: {pull_request_title} {url}", repository=repository)
+                notify(f"[{repository}] @{user} {action} pull request #{pull_request_number}: {pull_request_title} {url}", repository=repository)
 
             elif action in ("labeled", "unlabeled"):
                 label = request.json["label"]
-                notify(f"[{repository}] @{user} {action} {label} on pull_request #{pull_request_number}: {pull_request_title} {url}", repository=repository)
+                notify(f"[{repository}] @{user} {action} {label} on pull request #{pull_request_number}: {pull_request_title} {url}", repository=repository)
 
             elif action == "closed":
                 if request.json["pull_request"]["merged"]:
@@ -283,7 +283,7 @@ async def github(request):
 
             # super weird, this action is not supposed to be possible for pull_request :|
             elif action == "demilestoned":
-                notify(f"[{repository}] @{user} {action} pull_request #{pull_request_number}: {pull_request_title} {url}", repository=repository)
+                notify(f"[{repository}] @{user} {action} pull request #{pull_request_number}: {pull_request_title} {url}", repository=repository)
 
             elif action in ("review_requested", "review_request_removed", "synchronize"):
                 pass  # we don't care about those...
