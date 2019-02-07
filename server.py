@@ -73,7 +73,7 @@ async def github(request):
 
             if len(commits) == 1:
                 url = commits[0]["url"]
-                commit_message = commits[0]["message"].replace("\r\n", " ")
+                commit_message = commits[0]["message"].replace("\r\n", " ").replace("\n", " ")
 
                 if len(commit_message) > 120:
                     commit_message = commit_message[120:] + "..."
@@ -84,7 +84,7 @@ async def github(request):
                 notify(f"[{repository}] @{user} pushed {len(commits)} commits to {branch}: {url}", repository=repository)
                 for commit in commits[-5:]:
                     author = commit["author"]["name"]
-                    commit_message = commit["message"].replace("\r\n", " ")
+                    commit_message = commit["message"].replace("\r\n", " ").replace("\n", " ")
 
                     if len(commit_message) > 120:
                         commit_message = commit_message[120:] + "..."
