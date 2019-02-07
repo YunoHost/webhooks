@@ -87,7 +87,7 @@ async def github(request):
             elif len(commits) > 1:
                 url = request.json["compare"]
                 notify(f"[{repository}] @{user} pushed {len(commits)} commits to {branch}: {url}", repository=repository)
-                for commit in commits[-5:]:
+                for commit in commits[-3:]:
                     author = commit["author"]["name"]
                     commit_message = commit["message"].replace("\r\n", " ").replace("\n", " ")
 
