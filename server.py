@@ -182,7 +182,7 @@ async def github(request):
 
             elif action == "milestoned":
                 milestone = request.json["issue"]["milestone"]["title"]
-                notify(f"[{repository}] @{user} {action} {milestone} issue #{issue_number}: {issue_title} {url}", repository=repository)
+                notify(f"[{repository}] @{user} {action} {milestone} on issue #{issue_number}: {issue_title} {url}", repository=repository)
 
             elif action == "demilestoned":
                 notify(f"[{repository}] @{user} {action} issue #{issue_number}: {issue_title} {url}", repository=repository)
