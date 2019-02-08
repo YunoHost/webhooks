@@ -177,7 +177,7 @@ async def github(request):
                 notify(f"[{repository}] @{user} {action} {assigned_user} on issue #{issue_number}: {issue_title} {url}", repository=repository)
 
             elif action in ("labeled", "unlabeled"):
-                label = request.json["label"]
+                label = request.json["label"]["name"]
                 notify(f"[{repository}] @{user} {action} {label} on issue #{issue_number}: {issue_title} {url}", repository=repository)
 
             elif action == "milestoned":
@@ -271,7 +271,7 @@ async def github(request):
                 notify(f"[{repository}] @{user} {action} pull request #{pull_request_number}: {pull_request_title} {url}", repository=repository)
 
             elif action in ("labeled", "unlabeled"):
-                label = request.json["label"]
+                label = request.json["label"]["name"]
                 notify(f"[{repository}] @{user} {action} {label} on pull request #{pull_request_number}: {pull_request_title} {url}", repository=repository)
 
             elif action == "closed":
