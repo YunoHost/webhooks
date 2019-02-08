@@ -220,7 +220,9 @@ async def github(request):
             if len(comment) > 120:
                 comment = comment[:120] + "..."
 
-            notify(f"[{repository}] @{user} {action} a comment on pull request #{pull_request_number}: {comment} {url}", repository=repository)
+            # try to avoid duplicated messages
+            if action != "created":
+                notify(f"[{repository}] @{user} {action} a comment on pull request #{pull_request_number}: {comment} {url}", repository=repository)
 
         # https://developer.github.com/v3/activity/events/types/#pullrequestreviewevent
         elif hook_type == "pull_request_review":
