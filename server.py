@@ -193,7 +193,7 @@ async def github(request):
         # https://developer.github.com/v3/activity/events/types/#labelevent
         elif hook_type == "label":
             action = request.json["action"]
-            label = request.json["label"]
+            label = request.json["label"]["name"]
             repository = request.json["repository"]["name"]
             user = request.json["sender"]["login"]
 
