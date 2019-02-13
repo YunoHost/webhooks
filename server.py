@@ -104,6 +104,7 @@ async def github(request):
             user = request.json["comment"]["user"]["login"]
             commit_short_id = request.json["comment"]["commit_id"][:7]
             comment = request.json["comment"]["body"].replace("\r\n", " ")
+            url = request.json["comment"]["html_url"]
 
             notify(f"[{repository}] @{user} comment on commit {commit_short_id}: {comment} {url}", repository=repository)
 
