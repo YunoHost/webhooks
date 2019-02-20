@@ -243,11 +243,12 @@ async def github(request):
                 else:
                     comment = ": " + comment.replace("\r\n", " ")
 
-                notify(f"[{repository}] @{user} {state} pull request #{pull_request_number} {pull_request_title}{comment} {url}", repository=repository)
+                # to avoid duplicated with pull_request_review_comment event
+                if state == "commented" and not comment:
+                    pass
+                else:
+                    notify(f"[{repository}] @{user} {state} pull request #{pull_request_number} {pull_request_title}{comment} {url}", repository=repository)
 
-            # to avoid duplicated with pull_request_review_comment event
-            elif action == "commented":
-                pass
             else:
                 notify(f"[{repository}] @{user} {action} review pull request #{pull_request_number}: {pull_request_title} {url}", repository=repository)
 
