@@ -331,7 +331,7 @@ async def github(request):
             user = request.json["sender"]["login"]
             url = request.json["commit"]["html_url"]
 
-            if state != "success":
+            if state not in ("success", "pending"):
                 notify(f"[{repository}] {description} {target_url} on commit {url}")
             else:
                 print(f"Status weird stuff: [{repository}] @{user} state: {state}, description: {description}, target_url: {target_url} - {url}")
