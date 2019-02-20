@@ -224,7 +224,7 @@ async def github(request):
 
             # try to avoid duplicated messages
             if action != "created":
-                notify(f"[{repository}] @{user} {action} a commented on pull request #{pull_request_number} {pull_request_title}: {comment} {url}", repository=repository)
+                notify(f"[{repository}] @{user} {action} a comment on pull request #{pull_request_number} {pull_request_title}: {comment} {url}", repository=repository)
 
         # https://developer.github.com/v3/activity/events/types/#pullrequestreviewevent
         elif hook_type == "pull_request_review":
