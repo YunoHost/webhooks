@@ -285,6 +285,9 @@ async def github(request):
                     action = "merged"
                 notify(f"[{repository}] @{user} {action} pull request #{pull_request_number}: {pull_request_title} {url}", repository=repository)
 
+            elif action == "ready_for_review":
+                notify(f"[{repository}] @{user} just made pull request #{pull_request_number} ready for review: {pull_request_title} {url}", repository=repository)
+
             # super weird, this action is not supposed to be possible for pull_request :|
             elif action == "milestoned":
                 milestone = request.json["pull_request"]["milestone"]
@@ -298,7 +301,7 @@ async def github(request):
                 pass  # we don't care about those...
 
             else:
-                notify(f"WARNING: unknown 'pull_requests' action: {action}", repository=repository)
+                notify(f"WARNING: unknown 'pull_request' action: {action}", repository=repository)
 
         # https://developer.github.com/v3/activity/events/types/#repositoryevent
         elif hook_type == "repository":
