@@ -1,6 +1,7 @@
 import os
 import hmac
 import hashlib
+import asyncio
 import subprocess
 
 from sanic import Sanic
@@ -36,7 +37,9 @@ def notify(message, repository="dev"):
         chan = other_chans.get(repository, "dev")
 
     print(f"{chan} -> {message}")
-    subprocess.check_call(["python", "./to_room.py", gitbot_password, message, chan])
+    proc = await asyncio.create_subprocess_shell(f"python ./to_room.py '{gitbot_password}' '{message}' '{chan}'")
+    await proc.communicate()
+    await proc.wait()
 
 
 @app.route("/github", methods=['GET'])
