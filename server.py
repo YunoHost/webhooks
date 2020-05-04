@@ -37,26 +37,30 @@ async def notify(message, repository="dev"):
         chan = other_chans.get(repository, "dev")
 
     print(f"{chan} -> {message}")
-    proc = await asyncio.create_subprocess_shell(f"python ./to_room.py '{gitbot_password}' '{message}' '{chan}'")
+    proc = await asyncio.create_subprocess_shell(
+        f"python ./to_room.py '{gitbot_password}' '{message}' '{chan}'"
+    )
     await proc.communicate()
     await proc.wait()
 
 
-@app.route("/github", methods=['GET'])
+@app.route("/github", methods=["GET"])
 async def github_get(request):
-    return text("You aren't supposed to go on this page using a browser, it's for webhooks push instead.")
+    return text(
+        "You aren't supposed to go on this page using a browser, it's for webhooks push instead."
+    )
 
 
-@app.route("/github", methods=['POST'])
+@app.route("/github", methods=["POST"])
 async def github(request):
     # Only SHA1 is supported
-    header_signature = request.headers.get('X-Hub-Signature')
+    header_signature = request.headers.get("X-Hub-Signature")
     if header_signature is None:
         print("no header X-Hub-Signature")
         abort(403)
 
-    sha_name, signature = header_signature.split('=')
-    if sha_name != 'sha1':
+    sha_name, signature = header_signature.split("=")
+    if sha_name != "sha1":
         print("signing algo isn't sha1, it's '%s'" % sha_name)
         abort(501)
 
@@ -81,23 +85,36 @@ async def github(request):
 
             if len(commits) == 1:
                 url = commits[0]["url"]
-                commit_message = commits[0]["message"].replace("\r\n", " ").replace("\n", " ")
+                commit_message = (
+                    commits[0]["message"].replace("\r\n", " ").replace("\n", " ")
+                )
 
                 if len(commit_message) > 120:
                     commit_message = commit_message[120:] + "..."
 
-                await notify(f"[{repository}] @{user} pushed {len(commits)} commit to {branch}: {commit_message} {url}", repository=repository)
+                await notify(
+                    f"[{repository}] @{user} pushed {len(commits)} commit to {branch}: {commit_message} {url}",
+                    repository=repository,
+                )
             elif len(commits) > 1:
                 url = request.json["compare"]
-                await notify(f"[{repository}] @{user} pushed {len(commits)} commits to {branch}: {url}", repository=repository)
+                await notify(
+                    f"[{repository}] @{user} pushed {len(commits)} commits to {branch}: {url}",
+                    repository=repository,
+                )
                 for commit in commits[-3:]:
                     author = commit["author"]["name"]
-                    commit_message = commit["message"].replace("\r\n", " ").replace("\n", " ")
+                    commit_message = (
+                        commit["message"].replace("\r\n", " ").replace("\n", " ")
+                    )
 
                     if len(commit_message) > 120:
                         commit_message = commit_message[120:] + "..."
 
-                    await notify(f"[{repository}/{branch}] {commit_message} - {author}", repository=repository)
+                    await notify(
+                        f"[{repository}/{branch}] {commit_message} - {author}",
+                        repository=repository,
+                    )
             else:
                 ...  # case of 0 which means branch deletion
 
@@ -109,7 +126,10 @@ async def github(request):
             comment = request.json["comment"]["body"].replace("\r\n", " ")
             url = request.json["comment"]["html_url"]
 
-            await notify(f"[{repository}] @{user} comment on commit {commit_short_id}: {comment} {url}", repository=repository)
+            await notify(
+                f"[{repository}] @{user} comment on commit {commit_short_id}: {comment} {url}",
+                repository=repository,
+            )
 
         # https://developer.github.com/v3/activity/events/types/#createevent
         elif hook_type == "create":
@@ -118,13 +138,22 @@ async def github(request):
             repository = request.json["repository"]["name"]
 
             if kind == "repository":
-                await notify(f"@{user} created new repository {repository}: {url}", repository=repository)
+                await notify(
+                    f"@{user} created new repository {repository}: {url}",
+                    repository=repository,
+                )
             elif kind == "branch":
                 branch = request.json["ref"]
-                await notify(f"[{repository}] @{user} created new branch {branch}", repository=repository)
+                await notify(
+                    f"[{repository}] @{user} created new branch {branch}",
+                    repository=repository,
+                )
             elif kind == "tag":
                 tag = request.json["ref"]
-                await notify(f"[{repository}] @{user} created new tag {tag}", repository=repository)
+                await notify(
+                    f"[{repository}] @{user} created new tag {tag}",
+                    repository=repository,
+                )
             else:
                 print(f"WARNING: unknown 'create' event kind: {kind}")
 
@@ -135,7 +164,9 @@ async def github(request):
             repository = request.json["repository"]["name"]
 
             ref = request.json["ref"]
-            await notify(f"[{repository}] @{user} deleted {kind} {ref}", repository=repository)
+            await notify(
+                f"[{repository}] @{user} deleted {kind} {ref}", repository=repository
+            )
 
         # https://developer.github.com/v3/activity/events/types/#forkevent
         elif hook_type == "fork":
@@ -144,7 +175,10 @@ async def github(request):
             user = request.json["sender"]["login"]
             url = request.json["forkee"]["html_url"]
 
-            await notify(f"@{user} forked {repository} to {forked_repository}: {url}", repository=repository)
+            await notify(
+                f"@{user} forked {repository} to {forked_repository}: {url}",
+                repository=repository,
+            )
 
         # https://developer.github.com/v3/activity/events/types/#issuecommentevent
         elif hook_type == "issue_comment":
@@ -158,7 +192,10 @@ async def github(request):
             if len(comment) > 120:
                 comment = comment[:120] + "..."
 
-            await notify(f"[{repository}] @{user} commented on issue #{issue_number} {issue_title}: {comment} {url}", repository=repository)
+            await notify(
+                f"[{repository}] @{user} commented on issue #{issue_number} {issue_title}: {comment} {url}",
+                repository=repository,
+            )
 
         # https://developer.github.com/v3/activity/events/types/#issuesevent
         elif hook_type == "issues":
@@ -170,29 +207,57 @@ async def github(request):
             issue_title = request.json["issue"]["title"]
 
             if action == "opened":
-                await notify(f"[{repository}] @{user} {action} issue #{issue_number}: {issue_title} {url}", repository=repository)
+                await notify(
+                    f"[{repository}] @{user} {action} issue #{issue_number}: {issue_title} {url}",
+                    repository=repository,
+                )
 
-            elif action in ("edited", "deleted", "transferred", "pinned",
-                            "unpinned", "closed", "reopened"):
-                await notify(f"[{repository}] @{user} {action} issue #{issue_number}: {issue_title} {url}", repository=repository)
+            elif action in (
+                "edited",
+                "deleted",
+                "transferred",
+                "pinned",
+                "unpinned",
+                "closed",
+                "reopened",
+            ):
+                await notify(
+                    f"[{repository}] @{user} {action} issue #{issue_number}: {issue_title} {url}",
+                    repository=repository,
+                )
 
             elif action in ("assigned", "unassigned"):
                 assigned_user = request.json["assignee"]["login"]
-                await notify(f"[{repository}] @{user} {action} {assigned_user} on issue #{issue_number}: {issue_title} {url}", repository=repository)
+                await notify(
+                    f"[{repository}] @{user} {action} {assigned_user} on issue #{issue_number}: {issue_title} {url}",
+                    repository=repository,
+                )
 
             elif action in ("labeled", "unlabeled"):
                 label = request.json["label"]["name"]
-                await notify(f"[{repository}] @{user} {action} {label} on issue #{issue_number}: {issue_title} {url}", repository=repository)
+                await notify(
+                    f"[{repository}] @{user} {action} {label} on issue #{issue_number}: {issue_title} {url}",
+                    repository=repository,
+                )
 
             elif action == "milestoned":
                 milestone = request.json["issue"]["milestone"]["title"]
-                await notify(f"[{repository}] @{user} set {milestone} on issue #{issue_number}: {issue_title} {url}", repository=repository)
+                await notify(
+                    f"[{repository}] @{user} set {milestone} on issue #{issue_number}: {issue_title} {url}",
+                    repository=repository,
+                )
 
             elif action == "demilestoned":
-                await notify(f"[{repository}] @{user} {action} issue #{issue_number}: {issue_title} {url}", repository=repository)
+                await notify(
+                    f"[{repository}] @{user} {action} issue #{issue_number}: {issue_title} {url}",
+                    repository=repository,
+                )
 
             else:
-                await notify(f"[{repository}] WARNING: unknown 'issues' action: {action}", repository=repository)
+                await notify(
+                    f"[{repository}] WARNING: unknown 'issues' action: {action}",
+                    repository=repository,
+                )
 
         # https://developer.github.com/v3/activity/events/types/#labelevent
         elif hook_type == "label":
@@ -201,7 +266,9 @@ async def github(request):
             repository = request.json["repository"]["name"]
             user = request.json["sender"]["login"]
 
-            await notify(f"[{repository}] @{user} {action} label {label}", repository=repository)
+            await notify(
+                f"[{repository}] @{user} {action} label {label}", repository=repository
+            )
 
         # https://developer.github.com/v3/activity/events/types/#milestoneevent
         elif hook_type == "milestone":
@@ -210,7 +277,10 @@ async def github(request):
             user = request.json["sender"]["login"]
             milestone = request.json["milestone"]["title"]
 
-            await notify(f"[{repository}] @{user} {action} milestone {milestone}", repository=repository)
+            await notify(
+                f"[{repository}] @{user} {action} milestone {milestone}",
+                repository=repository,
+            )
 
         # https://developer.github.com/v3/activity/events/types/#pullrequestreviewcommentevent
         elif hook_type == "pull_request_review_comment":
@@ -226,9 +296,15 @@ async def github(request):
                 comment = comment[:120] + "..."
 
             if action == "created":
-                await notify(f"[{repository}] @{user} commented on pull request #{pull_request_number} {pull_request_title}: {comment} {url}", repository=repository)
+                await notify(
+                    f"[{repository}] @{user} commented on pull request #{pull_request_number} {pull_request_title}: {comment} {url}",
+                    repository=repository,
+                )
             else:
-                await notify(f"[{repository}] @{user} {action} a comment on pull request #{pull_request_number} {pull_request_title}: {comment} {url}", repository=repository)
+                await notify(
+                    f"[{repository}] @{user} {action} a comment on pull request #{pull_request_number} {pull_request_title}: {comment} {url}",
+                    repository=repository,
+                )
 
         # https://developer.github.com/v3/activity/events/types/#pullrequestreviewevent
         elif hook_type == "pull_request_review":
@@ -253,10 +329,16 @@ async def github(request):
                 if state == "commented" and not comment:
                     pass
                 else:
-                    await notify(f"[{repository}] @{user} {state} pull request #{pull_request_number} {pull_request_title}{comment} {url}", repository=repository)
+                    await notify(
+                        f"[{repository}] @{user} {state} pull request #{pull_request_number} {pull_request_title}{comment} {url}",
+                        repository=repository,
+                    )
 
             else:
-                await notify(f"[{repository}] @{user} {action} review pull request #{pull_request_number}: {pull_request_title} {url}", repository=repository)
+                await notify(
+                    f"[{repository}] @{user} {action} review pull request #{pull_request_number}: {pull_request_title} {url}",
+                    repository=repository,
+                )
 
         # https://developer.github.com/v3/activity/events/types/#pullrequestevent
         elif hook_type == "pull_request":
@@ -275,36 +357,68 @@ async def github(request):
             else:
                 comment = ": " + comment.replace("\r\n", " ")
 
-            if action in ("opened", "edited", "deleted", "transferred", "pinned",
-                          "unpinned", "reopened"):
-                await notify(f"[{repository}] @{user} {action} pull request #{pull_request_number}: {pull_request_title} {url}", repository=repository)
+            if action in (
+                "opened",
+                "edited",
+                "deleted",
+                "transferred",
+                "pinned",
+                "unpinned",
+                "reopened",
+            ):
+                await notify(
+                    f"[{repository}] @{user} {action} pull request #{pull_request_number}: {pull_request_title} {url}",
+                    repository=repository,
+                )
 
             elif action in ("labeled", "unlabeled"):
                 label = request.json["label"]["name"]
-                await notify(f"[{repository}] @{user} {action} {label} on pull request #{pull_request_number}: {pull_request_title} {url}", repository=repository)
+                await notify(
+                    f"[{repository}] @{user} {action} {label} on pull request #{pull_request_number}: {pull_request_title} {url}",
+                    repository=repository,
+                )
 
             elif action == "closed":
                 if request.json["pull_request"]["merged"]:
                     action = "merged"
-                await notify(f"[{repository}] @{user} {action} pull request #{pull_request_number}: {pull_request_title} {url}", repository=repository)
+                await notify(
+                    f"[{repository}] @{user} {action} pull request #{pull_request_number}: {pull_request_title} {url}",
+                    repository=repository,
+                )
 
             elif action == "ready_for_review":
-                await notify(f"[{repository}] @{user} just made pull request #{pull_request_number} ready for review: {pull_request_title} {url}", repository=repository)
+                await notify(
+                    f"[{repository}] @{user} just made pull request #{pull_request_number} ready for review: {pull_request_title} {url}",
+                    repository=repository,
+                )
 
             # super weird, this action is not supposed to be possible for pull_request :|
             elif action == "milestoned":
                 milestone = request.json["pull_request"]["milestone"]
-                await notify(f"[{repository}] @{user} set {milestone} pull request #{pull_request_number}: {pull_request_title} {url}", repository=repository)
+                await notify(
+                    f"[{repository}] @{user} set {milestone} pull request #{pull_request_number}: {pull_request_title} {url}",
+                    repository=repository,
+                )
 
             # super weird, this action is not supposed to be possible for pull_request :|
             elif action == "demilestoned":
-                await notify(f"[{repository}] @{user} {action} pull request #{pull_request_number}: {pull_request_title} {url}", repository=repository)
+                await notify(
+                    f"[{repository}] @{user} {action} pull request #{pull_request_number}: {pull_request_title} {url}",
+                    repository=repository,
+                )
 
-            elif action in ("review_requested", "review_request_removed", "synchronize"):
+            elif action in (
+                "review_requested",
+                "review_request_removed",
+                "synchronize",
+            ):
                 pass  # we don't care about those...
 
             else:
-                await notify(f"WARNING: unknown 'pull_request' action: {action}", repository=repository)
+                await notify(
+                    f"WARNING: unknown 'pull_request' action: {action}",
+                    repository=repository,
+                )
 
         # https://developer.github.com/v3/activity/events/types/#repositoryevent
         elif hook_type == "repository":
@@ -319,7 +433,10 @@ async def github(request):
             else:
                 description = ": " + description
 
-            await notify(f"@{user} {action} repository {repository}{description} {url}", repository=repository)
+            await notify(
+                f"@{user} {action} repository {repository}{description} {url}",
+                repository=repository,
+            )
 
         # https://developer.github.com/v3/activity/events/types/#releaseevent
         elif hook_type == "release":
@@ -330,7 +447,10 @@ async def github(request):
             release_tag = request.json["release"]["tag_name"]
             release_title = request.json["release"]["name"]
 
-            await notify(f"[repository] @{user} {action} new release #{release_tag} {release_title} {url}", repository=repository)
+            await notify(
+                f"[repository] @{user} {action} new release #{release_tag} {release_title} {url}",
+                repository=repository,
+            )
 
         # https://developer.github.com/v3/activity/events/types/#statusevent
         elif hook_type == "status":
@@ -342,16 +462,23 @@ async def github(request):
             url = request.json["commit"]["html_url"]
 
             if state not in ("success", "pending"):
-                await notify(f"[{repository}] {description} {target_url} on commit {url}")
+                await notify(
+                    f"[{repository}] {description} {target_url} on commit {url}"
+                )
             else:
-                print(f"Status weird stuff: [{repository}] @{user} state: {state}, description: {description}, target_url: {target_url} - {url}")
+                print(
+                    f"Status weird stuff: [{repository}] @{user} state: {state}, description: {description}, target_url: {target_url} - {url}"
+                )
 
         return text("ok")
 
     except Exception as e:
         import traceback
+
         traceback.print_exc()
-        await notify(f"Error in Webhooks: exception {e} on {hook_type} webhooks, please see logs")
+        await notify(
+            f"Error in Webhooks: exception {e} on {hook_type} webhooks, please see logs"
+        )
         abort(500)
 
 
@@ -360,5 +487,5 @@ async def index(request):
     return text("Webhooks server.")
 
 
-if __name__ == '__main__':
-    app.run('localhost', port="4567")
+if __name__ == "__main__":
+    app.run("localhost", port="4567")
