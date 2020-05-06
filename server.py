@@ -461,11 +461,11 @@ async def github(request):
             user = request.json["sender"]["login"]
             url = request.json["commit"]["html_url"]
             commit_message = request.json["commit"]["commit"]["message"]
-            commit_author = request.json["commit"]["committer"]["name"]
+            commit_author = request.json["commit"]["committer"]["login"]
 
             if state not in ("success", "pending"):
                 await notify(
-                    f'[{repository}] {description} {target_url} on commit {url} "{commit_message.replace("\n", " ")}" by {commit_author}'
+                    f'[{repository}] {description} {target_url} on commit {url} "{commit_message.replace("\n", " ")}" by @{commit_author}'
                 )
             else:
                 print(
