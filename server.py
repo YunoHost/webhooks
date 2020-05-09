@@ -461,7 +461,10 @@ async def github(request):
             user = request.json["sender"]["login"]
             url = request.json["commit"]["html_url"]
             commit_message = request.json["commit"]["commit"]["message"].replace("\n", " ")
-            commit_author = request.json["commit"]["committer"]["login"]
+            if request.json["commit"]["committer"]:
+                commit_author = request.json["commit"]["committer"]["login"]
+            else:
+                commit_author = request.json["commit"]["author"]["login"]
             branches = ", ".join((x["name"] for x in request.json["branches"]))
 
             if state not in ("success", "pending"):
