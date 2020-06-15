@@ -482,6 +482,12 @@ async def github(request):
         import traceback
 
         traceback.print_exc()
+
+        try:
+            print(request.json)
+        except Exception():
+            pass
+
         await notify(
             f"Error in Webhooks: exception {e} on {hook_type} webhooks, please see logs"
         )
