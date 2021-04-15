@@ -1,8 +1,8 @@
-import os
+# import os
 import hmac
 import hashlib
 import asyncio
-import subprocess
+# import subprocess
 
 from sanic import Sanic
 from sanic.response import text
@@ -469,7 +469,7 @@ async def github(request):
 
             if state not in ("success", "pending"):
                 await notify(
-                    f'[{repository}] {description} {target_url} on commit {url} "{commit_message}" by @{commit_author} on branche{"s" if len(branches) > 1 else ""} {branches}'
+                    f'[{repository}] {description} {target_url} on commit {url} "{commit_message}" by @{commit_author} on branch{"es" if len(branches) > 1 else ""} {branches}'
                 )
             else:
                 print(
