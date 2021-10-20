@@ -32,7 +32,7 @@ def XMPPBot(password, room="dev"):
 
         client.send(presence)
 
-        client.send(xmpp.Presence(attrs={'id': uuid.uuid4()}, to='%s@conference.yunohost.org/Saperlipopette' % room))
+        client.send(xmpp.Presence(attrs={'id': uuid.uuid4()}, to='%s@conference.yunohost.org/GitBot' % room))
 
     def sendToChatRoom(message):
         if not client.connected:
