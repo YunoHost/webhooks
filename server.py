@@ -37,11 +37,21 @@ async def notify(message, repository="dev"):
         chan = other_chans.get(repository, "dev")
 
     print(f"{chan} -> {message}")
+
+    for char in ["'", "`", "!", ";", "$"]:
+        message = message.replace(char, "")
+
     proc = await asyncio.create_subprocess_shell(
-        f"python ./to_room.py '{gitbot_password}' '{message}' '{chan}'"
+        f"/var/www/webhooks/matrix-commander -m '{message}' -c /var/www/webhooks/credentials.json --store /var/www/webhooks/store --room 'yunohost-{chan}'"
     )
-    await proc.communicate()
-    await proc.wait()
+    try:
+        await proc.communicate()
+        await proc.wait()
+    except Exception as e:
+        if type(e).__name__ == "CancelledError":
+            pass
+        else:
+            raise Exception(f" {type(e).__name__} while trying to notify about commit '{commit_message}' on {repository}/{branch}: {e}")
 
 
 @app.route("/github", methods=["GET"])
@@ -500,4 +510,4 @@ async def index(request):
 
 
 if __name__ == "__main__":
-    app.run("localhost", port="4567")
+    app.run('127.0.0.1', port="4567")
