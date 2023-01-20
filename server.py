@@ -102,7 +102,7 @@ async def github(request):
                 if len(commit_message) > 120:
                     commit_message = commit_message[:120] + "..."
 
-                commit_id = url.split("/")[-1]
+                commit_id = url.split("/")[-1][:8]
                 await notify(
                     f"[{repository}] @{user} pushed {len(commits)} commit to {branch}: {commit_message} ([{commit_id}]({url}))",
                     repository=repository,
