@@ -139,7 +139,7 @@ async def github(request):
             url = request.json["comment"]["html_url"]
 
             await notify(
-                f"[{repository}] @{user} comment on commit {commit_short_id}: {comment} {url}",
+                f"[{repository}] @{user} [comment]({url}) on commit {commit_short_id}: {comment}",
                 repository=repository,
             )
 
@@ -151,7 +151,7 @@ async def github(request):
 
             if kind == "repository":
                 await notify(
-                    f"@{user} created new repository {repository}: {url}",
+                    f"@{user} created new repository {repository}",
                     repository=repository,
                 )
             elif kind == "branch":
@@ -188,7 +188,7 @@ async def github(request):
             url = request.json["forkee"]["html_url"]
 
             await notify(
-                f"@{user} forked {repository} to {forked_repository}: {url}",
+                f"@{user} forked {repository} to [{forked_repository}]({url})",
                 repository=repository,
             )
 
@@ -197,6 +197,7 @@ async def github(request):
             repository = request.json["repository"]["name"]
             user = request.json["sender"]["login"]
             url = request.json["comment"]["html_url"]
+            issue_url = request.json["issue"]["html_url"]
             issue_number = request.json["issue"]["number"]
             issue_title = request.json["issue"]["title"]
             comment = request.json["comment"]["body"].replace("\r\n", " ")
@@ -205,7 +206,7 @@ async def github(request):
                 comment = comment[:120] + "..."
 
             await notify(
-                f"[{repository}] @{user} commented on issue #{issue_number} {issue_title}: {comment} {url}",
+                f"[{repository}] @{user} [commented]({url}) on [issue #{issue_number}]({issue_url}) {issue_title}: {comment}",
                 repository=repository,
             )
 
@@ -220,7 +221,7 @@ async def github(request):
 
             if action == "opened":
                 await notify(
-                    f"[{repository}] @{user} {action} issue #{issue_number}: {issue_title} {url}",
+                    f"[{repository}] @{user} {action} [issue #{issue_number}]({url}): {issue_title}",
                     repository=repository,
                 )
 
@@ -234,34 +235,34 @@ async def github(request):
                 "reopened",
             ):
                 await notify(
-                    f"[{repository}] @{user} {action} issue #{issue_number}: {issue_title} {url}",
+                    f"[{repository}] @{user} {action} [issue #{issue_number}]({url}): {issue_title}",
                     repository=repository,
                 )
 
             elif action in ("assigned", "unassigned"):
                 assigned_user = request.json["assignee"]["login"]
                 await notify(
-                    f"[{repository}] @{user} {action} {assigned_user} on issue #{issue_number}: {issue_title} {url}",
+                    f"[{repository}] @{user} {action} {assigned_user} on [issue #{issue_number}]({url}): {issue_title}",
                     repository=repository,
                 )
 
             elif action in ("labeled", "unlabeled"):
                 label = request.json["label"]["name"]
                 await notify(
-                    f"[{repository}] @{user} {action} {label} on issue #{issue_number}: {issue_title} {url}",
+                    f"[{repository}] @{user} {action} {label} on [issue #{issue_number}]({url}): {issue_title}",
                     repository=repository,
                 )
 
             elif action == "milestoned":
                 milestone = request.json["issue"]["milestone"]["title"]
                 await notify(
-                    f"[{repository}] @{user} set {milestone} on issue #{issue_number}: {issue_title} {url}",
+                    f"[{repository}] @{user} set {milestone} on [issue #{issue_number}]({url}): {issue_title}",
                     repository=repository,
                 )
 
             elif action == "demilestoned":
                 await notify(
-                    f"[{repository}] @{user} {action} issue #{issue_number}: {issue_title} {url}",
+                    f"[{repository}] @{user} {action} [issue #{issue_number}]({url}): {issue_title}",
                     repository=repository,
                 )
 
@@ -309,12 +310,12 @@ async def github(request):
 
             if action == "created":
                 await notify(
-                    f"[{repository}] @{user} commented on pull request #{pull_request_number} {pull_request_title}: {comment} {url}",
+                    f"[{repository}] @{user} [commented]({url}) on pull request #{pull_request_number} {pull_request_title}: {comment}",
                     repository=repository,
                 )
             else:
                 await notify(
-                    f"[{repository}] @{user} {action} a comment on pull request #{pull_request_number} {pull_request_title}: {comment} {url}",
+                    f"[{repository}] @{user} {action} a [comment]({url}) on pull request #{pull_request_number} {pull_request_title}: {comment}",
                     repository=repository,
                 )
 
@@ -342,13 +343,13 @@ async def github(request):
                     pass
                 else:
                     await notify(
-                        f"[{repository}] @{user} {state} pull request #{pull_request_number} {pull_request_title}{comment} {url}",
+                        f"[{repository}] @{user} {state} [pull request #{pull_request_number}]({url}) {pull_request_title}{comment}",
                         repository=repository,
                     )
 
             else:
                 await notify(
-                    f"[{repository}] @{user} {action} review pull request #{pull_request_number}: {pull_request_title} {url}",
+                    f"[{repository}] @{user} {action} review [pull request #{pull_request_number}]({url}): {pull_request_title}",
                     repository=repository,
                 )
 
@@ -379,14 +380,14 @@ async def github(request):
                 "reopened",
             ):
                 await notify(
-                    f"[{repository}] @{user} {action} pull request #{pull_request_number}: {pull_request_title} {url}",
+                    f"[{repository}] @{user} {action} [pull request #{pull_request_number}]({url}): {pull_request_title}",
                     repository=repository,
                 )
 
             elif action in ("labeled", "unlabeled"):
                 label = request.json["label"]["name"]
                 await notify(
-                    f"[{repository}] @{user} {action} {label} on pull request #{pull_request_number}: {pull_request_title} {url}",
+                    f"[{repository}] @{user} {action} {label} on [pull request #{pull_request_number}]({url}): {pull_request_title}",
                     repository=repository,
                 )
 
@@ -394,13 +395,13 @@ async def github(request):
                 if request.json["pull_request"]["merged"]:
                     action = "merged"
                 await notify(
-                    f"[{repository}] @{user} {action} pull request #{pull_request_number}: {pull_request_title} {url}",
+                    f"[{repository}] @{user} {action} [pull request #{pull_request_number}]({url}): {pull_request_title}",
                     repository=repository,
                 )
 
             elif action == "ready_for_review":
                 await notify(
-                    f"[{repository}] @{user} just made pull request #{pull_request_number} ready for review: {pull_request_title} {url}",
+                    f"[{repository}] @{user} just made [pull request #{pull_request_number}]({url}) ready for review: {pull_request_title}",
                     repository=repository,
                 )
 
@@ -408,14 +409,14 @@ async def github(request):
             elif action == "milestoned":
                 milestone = request.json["pull_request"]["milestone"]
                 await notify(
-                    f"[{repository}] @{user} set {milestone} pull request #{pull_request_number}: {pull_request_title} {url}",
+                    f"[{repository}] @{user} set {milestone} [pull request #{pull_request_number}]({url}): {pull_request_title}",
                     repository=repository,
                 )
 
             # super weird, this action is not supposed to be possible for pull_request :|
             elif action == "demilestoned":
                 await notify(
-                    f"[{repository}] @{user} {action} pull request #{pull_request_number}: {pull_request_title} {url}",
+                    f"[{repository}] @{user} {action} [pull request #{pull_request_number}]({url}): {pull_request_title}",
                     repository=repository,
                 )
 
@@ -460,7 +461,7 @@ async def github(request):
             release_title = request.json["release"]["name"]
 
             await notify(
-                f"[repository] @{user} {action} new release #{release_tag} {release_title} {url}",
+                f"[repository] @{user} {action} [new release #{release_tag}]({url}) {release_title}",
                 repository=repository,
             )
 
