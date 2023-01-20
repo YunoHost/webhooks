@@ -484,6 +484,7 @@ async def github(request):
                         f'[{repository}] :red_circle: Pipeline [{pipeline_id}]({target_url}) failed on branch {branches}'
                     )
                 elif description == "Pipeline canceled on GitLab":
+                    pipeline_id = target_url.split("/")[-1]
                     await notify(
                         f'[{repository}] :heavy_multiplication_x: Pipeline [{pipeline_id}]({target_url}) canceled on branch {branches}'
                     )
