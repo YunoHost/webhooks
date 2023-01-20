@@ -102,14 +102,16 @@ async def github(request):
                 if len(commit_message) > 120:
                     commit_message = commit_message[:120] + "..."
 
+                commit_id = url.split("/")[-1]
                 await notify(
-                    f"[{repository}] @{user} pushed {len(commits)} commit to {branch}: {commit_message} {url}",
+                    f"[{repository}] @{user} pushed {len(commits)} commit to {branch}: {commit_message} ([{commit_id}]({url}))",
                     repository=repository,
                 )
             elif len(commits) > 1:
                 url = request.json["compare"]
+                commit_ids = url.split("/")[-1]
                 await notify(
-                    f"[{repository}] @{user} pushed {len(commits)} commits to {branch}: {url}",
+                    f"[{repository}] @{user} pushed {len(commits)} commits to {branch} ([{commit_ids}]({url}))",
                     repository=repository,
                 )
                 for commit in commits[-3:]:
