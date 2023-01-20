@@ -478,9 +478,19 @@ async def github(request):
             branches = ", ".join((x["name"] for x in request.json["branches"]))
 
             if state not in ("success", "pending"):
-                await notify(
-                    f'[{repository}] {description} {target_url} on commit {url} "{commit_message}" by @{commit_author} on branch{"es" if len(branches) > 1 else ""} {branches}'
-                )
+                if description == "Pipeline failed on GitLab":
+                    pipeline_id = target_url.split("/")[-1]
+                    await notify(
+                        f'[{repository}] :red_circle: Pipeline [{pipeline_id}]({target_url}) failed on branch {branches}'
+                    )
+                elif description == "Pipeline canceled on GitLab":
+                    await notify(
+                        f'[{repository}] :heavy_multiplication_x: Pipeline [{pipeline_id}]({target_url}) canceled on branch {branches}'
+                    )
+                else:
+                    await notify(
+                        f'[{repository}] {description} {target_url} on commit {url} "{commit_message}" by @{commit_author} on branch{"es" if len(branches) > 1 else ""} {branches}'
+                    )
             else:
                 print(
                     f"Status weird stuff: [{repository}] @{user} state: {state}, description: {description}, target_url: {target_url} - {url}"
