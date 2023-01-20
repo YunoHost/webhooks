@@ -42,7 +42,7 @@ async def notify(message, repository="dev"):
         message = message.replace(char, "")
 
     proc = await asyncio.create_subprocess_shell(
-        f"/var/www/webhooks/matrix-commander -m '{message}' -c /var/www/webhooks/credentials.json --store /var/www/webhooks/store --room 'yunohost-{chan}'"
+        f"/var/www/webhooks/matrix-commander --markdown -m '{message}' -c /var/www/webhooks/credentials.json --store /var/www/webhooks/store --room 'yunohost-{chan}'"
     )
     try:
         await proc.communicate()
