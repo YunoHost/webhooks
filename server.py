@@ -2,6 +2,7 @@
 import hmac
 import hashlib
 import asyncio
+
 # import subprocess
 
 from sanic import Sanic
@@ -51,7 +52,9 @@ async def notify(message, repository="dev"):
         if type(e).__name__ == "CancelledError":
             pass
         else:
-            raise Exception(f" {type(e).__name__} while trying to notify about commit '{commit_message}' on {repository}/{branch}: {e}")
+            raise Exception(
+                f" {type(e).__name__} while trying to notify about commit '{commit_message}' on {repository}/{branch}: {e}"
+            )
 
 
 @app.route("/github", methods=["GET"])
@@ -479,7 +482,9 @@ async def github(request):
             repository = request.json["repository"]["name"]
             user = request.json["sender"]["login"]
             url = request.json["commit"]["html_url"]
-            commit_message = request.json["commit"]["commit"]["message"].replace("\n", " ")
+            commit_message = request.json["commit"]["commit"]["message"].replace(
+                "\n", " "
+            )
             if request.json["commit"]["commit"]["committer"]:
                 commit_author = request.json["commit"]["commit"]["committer"]["name"]
             else:
@@ -490,12 +495,12 @@ async def github(request):
                 if description == "Pipeline failed on GitLab":
                     pipeline_id = target_url.split("/")[-1]
                     await notify(
-                        f'[{repository}] 🔴 Pipeline [#{pipeline_id}]({target_url}) failed on branch {branches}'
+                        f"[{repository}] 🔴 Pipeline [#{pipeline_id}]({target_url}) failed on branch {branches}"
                     )
                 elif description == "Pipeline canceled on GitLab":
                     pipeline_id = target_url.split("/")[-1]
                     await notify(
-                        f'[{repository}] ✖️ Pipeline [#{pipeline_id}]({target_url}) canceled on branch {branches}'
+                        f"[{repository}] ✖️ Pipeline [#{pipeline_id}]({target_url}) canceled on branch {branches}"
                     )
                 else:
                     await notify(
@@ -530,4 +535,4 @@ async def index(request):
 
 
 if __name__ == "__main__":
-    app.run('127.0.0.1', port="4567")
+    app.run("127.0.0.1", port="4567")
