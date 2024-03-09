@@ -27,19 +27,33 @@ def XMPPBot(password, room="dev"):
 
         client.sendInitPresence(requestRoster=0)
 
-        presence = xmpp.Presence(attrs={'id': uuid.uuid4()}, to="%s@conference.yunohost.org" % room)
-        presence.setTag('x', namespace='http://jabber.org/protocol/muc')
+        presence = xmpp.Presence(
+            attrs={"id": uuid.uuid4()}, to="%s@conference.yunohost.org" % room
+        )
+        presence.setTag("x", namespace="http://jabber.org/protocol/muc")
 
         client.send(presence)
 
-        client.send(xmpp.Presence(attrs={'id': uuid.uuid4()}, to='%s@conference.yunohost.org/GitBot' % room))
+        client.send(
+            xmpp.Presence(
+                attrs={"id": uuid.uuid4()},
+                to="%s@conference.yunohost.org/GitBot" % room,
+            )
+        )
 
     def sendToChatRoom(message):
         if not client.connected:
             connect()
             client.connected = True
 
-        client.send(xmpp.protocol.Message("%s@conference.yunohost.org" % room, message, typ="groupchat", attrs={'id': uuid.uuid4()}))
+        client.send(
+            xmpp.protocol.Message(
+                "%s@conference.yunohost.org" % room,
+                message,
+                typ="groupchat",
+                attrs={"id": uuid.uuid4()},
+            )
+        )
 
     client.sendToChatRoom = sendToChatRoom
 
@@ -49,7 +63,7 @@ def XMPPBot(password, room="dev"):
         client.disconnect()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if len(sys.argv[1:]) < 2:
         print("Usage : python to_room.py <password> <message> [<room name>]")
         sys.exit(1)
