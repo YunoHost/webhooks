@@ -420,6 +420,12 @@ async def github(request):
                     repository=repository,
                 )
 
+            elif action == "converted_to_draft":
+                await notify(
+                    f"[{repository}] @{user} converted to draft the [pull request #{pull_request_number}]({url}): {pull_request_title}",
+                    repository=repository,
+                )
+
             elif action in (
                 "review_requested",
                 "review_request_removed",
