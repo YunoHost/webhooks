@@ -10,7 +10,7 @@ from sanic.response import text
 from sanic.exceptions import abort
 
 
-app = Sanic()
+app = Sanic(name="Webhooks")
 
 secret = open("./github_webhook_secret", "r").read().strip()
 gitbot_password = open("./gitbot_password", "r").read().strip()
