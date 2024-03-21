@@ -436,6 +436,12 @@ async def github(request):
                     repository=repository,
                 )
 
+            elif action == "auto_merge_enabled":
+                await notify(
+                    f"[{repository}] Auto-merge has been enabled by @{user} on [pull request #{pull_request_number}]({url}): {pull_request_title}",
+                    repository=repository,
+                )
+
             elif action in (
                 "review_requested",
                 "review_request_removed",
