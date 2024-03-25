@@ -89,7 +89,7 @@ async def github(request):
     print(f"Hook type: {hook_type}")
 
     try:
-        repository = request.json["repository"]["name"]
+        repository = request.json.get("repository", {}).get("name")
 
         # do not notify if the repo is 'apps_translations'
         if repository == "apps_translations":
