@@ -88,13 +88,13 @@ async def github(request):
     print()
     print(f"Hook type: {hook_type}")
 
-    repository = request.json["repository"]["name"]
-
-    # do not notify if the repo is 'apps_translations'
-    if repository == "apps_translations":
-        return
-
     try:
+        repository = request.json["repository"]["name"]
+
+        # do not notify if the repo is 'apps_translations'
+        if repository == "apps_translations":
+            return
+
         # https://developer.github.com/v3/activity/events/types/#pushevent
         if hook_type == "push":
             commits = request.json["commits"]
