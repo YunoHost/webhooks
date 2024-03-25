@@ -88,10 +88,15 @@ async def github(request):
     print()
     print(f"Hook type: {hook_type}")
 
+    repository = request.json["repository"]["name"]
+
+    # do not notify if the repo is 'apps_translations'
+    if repository == "apps_translations":
+        return
+
     try:
         # https://developer.github.com/v3/activity/events/types/#pushevent
         if hook_type == "push":
-            repository = request.json["repository"]["name"]
             commits = request.json["commits"]
             user = request.json["pusher"]["name"]
             branch = request.json["ref"].split("/", 2)[2]
@@ -135,7 +140,6 @@ async def github(request):
 
         # https://developer.github.com/v3/activity/events/types/#commitcommentevent
         elif hook_type == "commit_comment":
-            repository = request.json["repository"]["name"]
             user = request.json["comment"]["user"]["login"]
             commit_short_id = request.json["comment"]["commit_id"][:7]
             comment = request.json["comment"]["body"].replace("\r\n", " ")
@@ -150,7 +154,6 @@ async def github(request):
         elif hook_type == "create":
             kind = request.json["ref_type"]
             user = request.json["sender"]["login"]
-            repository = request.json["repository"]["name"]
 
             if kind == "repository":
                 await notify(
@@ -176,7 +179,6 @@ async def github(request):
         elif hook_type == "delete":
             kind = request.json["ref_type"]
             user = request.json["sender"]["login"]
-            repository = request.json["repository"]["name"]
 
             ref = request.json["ref"]
             await notify(
@@ -185,7 +187,6 @@ async def github(request):
 
         # https://developer.github.com/v3/activity/events/types/#forkevent
         elif hook_type == "fork":
-            repository = request.json["repository"]["name"]
             forked_repository = request.json["forkee"]["full_name"]
             user = request.json["sender"]["login"]
             url = request.json["forkee"]["html_url"]
@@ -197,7 +198,6 @@ async def github(request):
 
         # https://developer.github.com/v3/activity/events/types/#issuecommentevent
         elif hook_type == "issue_comment":
-            repository = request.json["repository"]["name"]
             user = request.json["sender"]["login"]
             url = request.json["comment"]["html_url"]
             issue_url = request.json["issue"]["html_url"]
@@ -216,7 +216,6 @@ async def github(request):
         # https://developer.github.com/v3/activity/events/types/#issuesevent
         elif hook_type == "issues":
             action = request.json["action"]
-            repository = request.json["repository"]["name"]
             user = request.json["sender"]["login"]
             issue_number = request.json["issue"]["number"]
             url = request.json["issue"]["html_url"]
@@ -279,7 +278,6 @@ async def github(request):
         elif hook_type == "label":
             action = request.json["action"]
             label = request.json["label"]["name"]
-            repository = request.json["repository"]["name"]
             user = request.json["sender"]["login"]
 
             await notify(
@@ -289,7 +287,6 @@ async def github(request):
         # https://developer.github.com/v3/activity/events/types/#milestoneevent
         elif hook_type == "milestone":
             action = request.json["action"]
-            repository = request.json["repository"]["name"]
             user = request.json["sender"]["login"]
             milestone = request.json["milestone"]["title"]
 
@@ -301,7 +298,6 @@ async def github(request):
         # https://developer.github.com/v3/activity/events/types/#pullrequestreviewcommentevent
         elif hook_type == "pull_request_review_comment":
             action = request.json["action"]
-            repository = request.json["repository"]["name"]
             user = request.json["sender"]["login"]
             pull_request_number = request.json["pull_request"]["number"]
             pull_request_title = request.json["pull_request"]["title"]
@@ -325,7 +321,6 @@ async def github(request):
         # https://developer.github.com/v3/activity/events/types/#pullrequestreviewevent
         elif hook_type == "pull_request_review":
             action = request.json["action"]
-            repository = request.json["repository"]["name"]
             user = request.json["sender"]["login"]
             pull_request_number = request.json["pull_request"]["number"]
             pull_request_title = request.json["pull_request"]["title"]
@@ -359,7 +354,6 @@ async def github(request):
         # https://developer.github.com/v3/activity/events/types/#pullrequestevent
         elif hook_type == "pull_request":
             action = request.json["action"]
-            repository = request.json["repository"]["name"]
             user = request.json["sender"]["login"]
             pull_request_number = request.json["pull_request"]["number"]
             pull_request_title = request.json["pull_request"]["title"]
@@ -458,7 +452,6 @@ async def github(request):
         # https://developer.github.com/v3/activity/events/types/#repositoryevent
         elif hook_type == "repository":
             action = request.json["action"]
-            repository = request.json["repository"]["name"]
             user = request.json["sender"]["login"]
             url = request.json["repository"]["html_url"]
             description = request.json["repository"]["description"]
@@ -476,7 +469,6 @@ async def github(request):
         # https://developer.github.com/v3/activity/events/types/#releaseevent
         elif hook_type == "release":
             action = request.json["action"]
-            repository = request.json["repository"]["name"]
             user = request.json["sender"]["login"]
             url = request.json["release"]["html_url"]
             release_tag = request.json["release"]["tag_name"]
@@ -492,7 +484,6 @@ async def github(request):
             state = request.json["state"]
             description = request.json["description"]
             target_url = request.json["target_url"]
-            repository = request.json["repository"]["name"]
             user = request.json["sender"]["login"]
             url = request.json["commit"]["html_url"]
             commit_message = request.json["commit"]["commit"]["message"].replace(
