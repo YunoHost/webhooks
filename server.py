@@ -99,6 +99,10 @@ async def github(request):
         if hook_type == "push":
             commits = request.json["commits"]
             user = request.json["pusher"]["name"]
+            # Add an invisible character to prevent pinging the user
+            # if their Matrix and github nickname are the same
+            user = user[1] + '​' + user[1:]
+
             branch = request.json["ref"].split("/", 2)[2]
 
             if len(commits) == 1:
