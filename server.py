@@ -91,7 +91,7 @@ async def github(request):
     def user_noping(user: str) -> str:
         # Add an invisible character to prevent pinging the user
         # if their Matrix and github nickname are the same
-        return user[0] + '​' + user[1:]
+        return user[0] + "​" + user[1:]
 
     try:
         repository = request.json.get("repository", {}).get("name")
