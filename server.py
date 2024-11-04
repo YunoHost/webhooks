@@ -42,6 +42,7 @@ SPECIFIC_REPO_TO_CHANNEL_MAPPING = {
 
 APP_DIR = "/var/www/my_webapp"
 
+
 async def notify(message, repository="dev"):
     if repository.endswith("_ynh"):
         chan = CHANNELS["apps"]
