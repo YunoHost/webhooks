@@ -15,13 +15,23 @@ app = Sanic(name="Webhooks")
 secret = open("./github_webhook_secret", "r").read().strip()
 gitbot_password = open("./gitbot_password", "r").read().strip()
 
-other_chans = {
+
+CHANNELS = {
+    "dev": "!oUChrIGPjhUkpgjYCW:matrix.org",
+    "apps": "!PauySEslPVuJCJCwlZ:matrix.org",
+    "doc": "!OysWrSrQatFMrZROPJ:aria-net.org",
+}
+
+SPECIFIC_REPO_TO_CHANNEL_MAPPING = {
     "doc": "doc",
     "apps": "apps",
+    "appstore": "apps",
+    "apps_tools": "apps",
+    "apps_tools": "apps",
+    "appgenerator": "apps",
+    "example_ynh": "apps",
     "package_linter": "apps",
-    "CI_package_check": "apps",
     "package_check": "apps",
-    "test_apps": "apps",
 }
 
 # TODO
@@ -30,25 +40,26 @@ other_chans = {
 # * fusionner les 2
 # * déployer
 
+APP_DIR = "/var/www/my_webapp"
 
 async def notify(message, repository="dev"):
     if repository.endswith("_ynh"):
-        chan = "apps"
+        chan = CHANNELS["apps"]
     else:
-        chan = other_chans.get(repository, "dev")
+        chan = CHANNELS[SPECIFIC_REPO_TO_CHANNEL_MAPPING.get(repository, "dev")]
 
     print(f"{chan} -> {message}")
 
     for char in ["'", "`", "!", ";", "$"]:
         message = message.replace(char, "")
 
-    proc = await asyncio.create_subprocess_shell(
-        f"/var/www/webhooks/matrix-commander --markdown -m '{message}' -c /var/www/webhooks/credentials.json --store /var/www/webhooks/store --room 'yunohost-{chan}'"
-    )
+    command = f"{APP_DIR}/matrix-commander --markdown -m '{message}' -c {APP_DIR}/credentials.json --store {APP_DIR}/store --sync off --room '{chan}'"
+    proc = await asyncio.create_subprocess_shell(command)
     try:
         await proc.communicate()
         await proc.wait()
     except Exception as e:
+        print(f"Found exception {e}")
         if type(e).__name__ == "CancelledError":
             pass
         else:
