@@ -31,6 +31,42 @@ SPECIFIC_REPO_TO_CHANNEL_MAPPING = {
     "package_check": "apps",
 }
 
+# Most popular apps, compute it using something like:
+# $ curl -s https://apps.yunohost.org/popularity.json | jq -r 'to_entries | sort_by(.value) | from_entries' | tail -n 30 | tr -d ':,}' | awk '{print $1 ",  # " $2}'
+# Last update by Aleks, november 2024
+
+MOST_POPULAR_APPS = [
+    "calibreweb",  # 42
+    "mastodon",  # 43
+    "beeper",  # 44
+    "cryptpad",  # 44
+    "joplin",  # 44
+    "piped",  # 44
+    # "anki-sync-server", # 45 # only in wishlist
+    "stirling-pdf",  # 46
+    # "vpn-server",  # 46 # only in wishlist
+    "element",  # 47
+    "collabora",  # 51
+    "penpot",  # 52
+    "snappymail",  # 52
+    "syncthing",  # 53
+    "jellyfin",  # 54
+    "rustdesk-server",  # 54 # only in wishlist
+    "searxng",  # 54
+    "borg",  # 55
+    # "bigbluebutton",  # 56 # only in wishlist
+    "synapse",  # 57
+    "wireguard",  # 61
+    # "appflowy", # 63 # only in wishlist
+    "freshrss",  # 68
+    "wallabag2",  # 74
+    "roundcube",  # 75
+    "redirect",  # 80
+    "my_webapp",  # 87
+    "vaultwarden",  # 88
+    "nextcloud",  # 237
+]
+
 # TODO
 # * choper tous les templates de notification
 # * choper tous les evenements à suivre
@@ -107,6 +143,9 @@ async def github(request):
 
         # do not notify if the repo is 'apps_translations'
         if repository == "apps_translations":
+            return
+        # for apps repo, only notify for apps that are in the hardcoded most popular apps
+        elif repository.endswith("_ynh") and hook_type != "repository" and repository not in MOST_POPULAR_APPS:
             return
 
         # https://developer.github.com/v3/activity/events/types/#pushevent
