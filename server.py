@@ -151,7 +151,13 @@ async def github(request):
         # https://developer.github.com/v3/activity/events/types/#pushevent
         if hook_type == "push":
             commits = request.json["commits"]
-            user = user_noping(request.json["pusher"]["name"])
+            user = request.json["pusher"]["name"]
+
+            # Ignore yunohost-bot and github bot, too much noise
+            if user in ["yunohost-bot", "github-actions[bot]"]:
+                return
+
+            user = user_noping(user)
 
             branch = request.json["ref"].split("/", 2)[2]
 
@@ -197,6 +203,11 @@ async def github(request):
             user = user_noping(request.json["comment"]["user"]["login"])
             commit_short_id = request.json["comment"]["commit_id"][:7]
             comment = request.json["comment"]["body"].replace("\r\n", " ")
+
+            # Don't notify the !testme comments
+            if comment.strip().startswith("!testme"):
+                return
+
             url = request.json["comment"]["html_url"]
 
             await notify(
@@ -207,7 +218,13 @@ async def github(request):
         # https://developer.github.com/v3/activity/events/types/#createevent
         elif hook_type == "create":
             kind = request.json["ref_type"]
-            user = user_noping(request.json["sender"]["login"])
+            user = request.json["sender"]["login"]
+
+            # Ignore yunohost-bot and github bot, too much noise
+            if user in ["yunohost-bot", "github-actions[bot]"]:
+                return
+
+            user = user_noping(user)
 
             if kind == "repository":
                 await notify(
@@ -252,7 +269,15 @@ async def github(request):
 
         # https://developer.github.com/v3/activity/events/types/#issuecommentevent
         elif hook_type == "issue_comment":
-            user = user_noping(request.json["sender"]["login"])
+
+            user = request.json["sender"]["login"]
+
+            # Ignore yunohost-bot and github bot, too much noise
+            if user in ["yunohost-bot", "github-actions[bot]"]:
+                return
+
+            user = user_noping(user)
+
             url = request.json["comment"]["html_url"]
             issue_url = request.json["issue"]["html_url"]
             issue_number = request.json["issue"]["number"]
