@@ -204,10 +204,6 @@ async def github(request):
             commit_short_id = request.json["comment"]["commit_id"][:7]
             comment = request.json["comment"]["body"].replace("\r\n", " ")
 
-            # Don't notify the !testme comments
-            if comment.strip().startswith("!testme"):
-                return
-
             url = request.json["comment"]["html_url"]
 
             await notify(
@@ -283,6 +279,10 @@ async def github(request):
             issue_number = request.json["issue"]["number"]
             issue_title = request.json["issue"]["title"]
             comment = request.json["comment"]["body"].replace("\r\n", " ")
+
+            # Don't notify the !testme comments
+            if comment.strip().startswith("!testme"):
+                return
 
             if len(comment) > 120:
                 comment = comment[:120] + "..."
