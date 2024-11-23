@@ -145,7 +145,11 @@ async def github(request):
         if repository == "apps_translations":
             return empty()
         # for apps repo, only notify for apps that are in the hardcoded most popular apps
-        elif repository.endswith("_ynh") and hook_type != "repository" and repository not in MOST_POPULAR_APPS:
+        elif (
+            repository.endswith("_ynh")
+            and hook_type != "repository"
+            and repository not in MOST_POPULAR_APPS
+        ):
             return empty()
 
         # https://developer.github.com/v3/activity/events/types/#pushevent
