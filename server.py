@@ -148,7 +148,7 @@ async def github(request):
         elif (
             repository.endswith("_ynh")
             and hook_type != "repository"
-            and repository not in MOST_POPULAR_APPS
+            and repository.replace("_ynh", "") not in MOST_POPULAR_APPS
         ):
             return empty()
 
