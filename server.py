@@ -1,9 +1,6 @@
-# import os
 import hmac
 import hashlib
 import asyncio
-
-# import subprocess
 
 from sanic import Sanic
 from sanic.response import text
