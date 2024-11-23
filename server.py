@@ -3,7 +3,7 @@ import hashlib
 import asyncio
 
 from sanic import Sanic
-from sanic.response import text
+from sanic.response import text, empty
 from sanic.exceptions import abort
 
 
@@ -143,10 +143,10 @@ async def github(request):
 
         # do not notify if the repo is 'apps_translations'
         if repository == "apps_translations":
-            return
+            return empty()
         # for apps repo, only notify for apps that are in the hardcoded most popular apps
         elif repository.endswith("_ynh") and hook_type != "repository" and repository not in MOST_POPULAR_APPS:
-            return
+            return empty()
 
         # https://developer.github.com/v3/activity/events/types/#pushevent
         if hook_type == "push":
@@ -155,7 +155,7 @@ async def github(request):
 
             # Ignore yunohost-bot and github bot, too much noise
             if user in ["yunohost-bot", "github-actions[bot]"]:
-                return
+                return empty()
 
             user = user_noping(user)
 
@@ -218,7 +218,7 @@ async def github(request):
 
             # Ignore yunohost-bot and github bot, too much noise
             if user in ["yunohost-bot", "github-actions[bot]"]:
-                return
+                return empty()
 
             user = user_noping(user)
 
@@ -270,7 +270,7 @@ async def github(request):
 
             # Ignore yunohost-bot and github bot, too much noise
             if user in ["yunohost-bot", "github-actions[bot]"]:
-                return
+                return empty()
 
             user = user_noping(user)
 
@@ -282,7 +282,7 @@ async def github(request):
 
             # Don't notify the !testme comments
             if comment.strip().startswith("!testme"):
-                return
+                return empty()
 
             if len(comment) > 120:
                 comment = comment[:120] + "..."
