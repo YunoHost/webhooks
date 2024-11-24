@@ -166,7 +166,7 @@ async def github(request):
             # redundant with the "user merged pull requested #id" notification
             # So skip this to prevent unecessary noise, people can just look at
             # the PR to see the commits that got merged
-            if commits and commits[-1]["message"].startswith("Merge pull request #")
+            if commits and commits[-1]["message"].startswith("Merge pull request #"):
                 return empty()
 
             user = user_noping(user)
