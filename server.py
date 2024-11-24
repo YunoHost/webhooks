@@ -161,6 +161,14 @@ async def github(request):
             if user in ["yunohost-bot", "github-actions[bot]"]:
                 return empty()
 
+            # If the last commit is "Merge pull request #id from Org/Repo",
+            # then it's most likely a PR that just got merged, and it's kind of
+            # redundant with the "user merged pull requested #id" notification
+            # So skip this to prevent unecessary noise, people can just look at
+            # the PR to see the commits that got merged
+            if commits and commits[-1]["message"].startswith("Merge pull request #")
+                return empty()
+
             user = user_noping(user)
 
             branch = request.json["ref"].split("/", 2)[2]
