@@ -65,6 +65,7 @@ MOST_POPULAR_APPS = [
     "my_webapp",  # 87
     "vaultwarden",  # 88
     "nextcloud",  # 237
+    "example", # 777, such a popular app !
 ]
 
 # TODO
