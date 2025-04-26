@@ -140,7 +140,7 @@ async def github(request):
         return user[0] + "​" + user[1:]
 
     try:
-        repository = request.json.get("repository", {}).get("name")
+        repository = request.json.get("repository", {}).get("name", "")
 
         # do not notify if the repo is 'apps_translations'
         if repository == "apps_translations":
