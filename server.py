@@ -159,7 +159,7 @@ async def github(request):
             user = request.json["pusher"]["name"]
 
             # Ignore yunohost-bot and github bot, too much noise
-            if user in ["yunohost-bot", "github-actions[bot]"]:
+            if user in ["yunohost-bot", "github-actions[bot]", "github-advanced-security[bot]"]:
                 return empty()
 
             # If the last commit is "Merge pull request #id from Org/Repo",
