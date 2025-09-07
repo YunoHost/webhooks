@@ -2,6 +2,7 @@ import hmac
 import hashlib
 import asyncio
 
+import datetime
 from sanic import Sanic
 from sanic.response import text, empty
 from sanic.exceptions import abort
@@ -195,19 +196,19 @@ async def github(request):
                     f"[{repository}] {user} pushed {len(commits)} commits to {branch} ([{commit_ids}]({url}))",
                     repository=repository,
                 )
-                for commit in commits[-3:]:
-                    author = commit["author"]["name"]
-                    commit_message = (
-                        commit["message"].replace("\r\n", " ").replace("\n", " ")
-                    )
-
-                    if len(commit_message) > 120:
-                        commit_message = commit_message[:120] + "..."
-
-                    await notify(
-                        f"[{repository}/{branch}] {commit_message} - {author}",
-                        repository=repository,
-                    )
+                #for commit in commits[-3:]:
+                #    author = commit["author"]["name"]
+                #    commit_message = (
+                #        commit["message"].replace("\r\n", " ").replace("\n", " ")
+                #    )
+                #
+                #    if len(commit_message) > 120:
+                #        commit_message = commit_message[:120] + "..."
+                #
+                #    await notify(
+                #        f"[{repository}/{branch}] {commit_message} - {author}",
+                #        repository=repository,
+                #    )
             else:
                 ...  # case of 0 which means branch deletion
 
@@ -241,15 +242,16 @@ async def github(request):
                     repository=repository,
                 )
             elif kind == "branch":
-                branch = request.json["ref"]
-                await notify(
-                    f"[{repository}] {user} created new branch {branch}",
-                    repository=repository,
-                )
+                pass
+                #branch = request.json["ref"]
+                #await notify(
+                #    f"[{repository}] {user} created new branch {branch}",
+                #    repository=repository,
+                #)
             elif kind == "tag":
                 tag = request.json["ref"]
                 await notify(
-                    f"[{repository}] {user} created new tag {tag}",
+                    f"[{repository}] {user} created new t𝚊g {tag}",
                     repository=repository,
                 )
             else:
@@ -328,10 +330,17 @@ async def github(request):
                 "closed",
                 "reopened",
             ):
-                await notify(
-                    f"[{repository}] {user} {action} [issue #{issue_number}]({url}): {issue_title}",
-                    repository=repository,
-                )
+
+                created_at = request.json["issue"]["created_at"]
+                created_seconds_ago = (datetime.datetime.now(datetime.UTC) - datetime.datetime.strptime(created_at, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc)).seconds
+                if action == "edited" and created_seconds_ago < 600:
+                    # Don't notify for edits in the 10 minutes after creation
+                    pass
+                else:
+                    await notify(
+                        f"[{repository}] {user} {action} [issue #{issue_number}]({url}): {issue_title}",
+                        repository=repository,
+                    )
 
             elif action in ("assigned", "unassigned"):
                 assigned_user = request.json["assignee"]["login"]
@@ -340,12 +349,13 @@ async def github(request):
                     repository=repository,
                 )
 
-            elif action in ("labeled", "unlabeled"):
-                label = request.json["label"]["name"]
-                await notify(
-                    f"[{repository}] {user} {action} {label} on [issue #{issue_number}]({url}): {issue_title}",
-                    repository=repository,
-                )
+            elif action in ("labeled", "unlabeled", "typed", "untyped"):
+                pass
+                #label = request.json["label"]["name"]
+                #await notify(
+                #    f"[{repository}] {user} {action} {label} on [issue #{issue_number}]({url}): {issue_title}",
+                #    repository=repository,
+                #)
 
             elif action == "milestoned":
                 milestone = request.json["issue"]["milestone"]["title"]
@@ -359,7 +369,6 @@ async def github(request):
                     f"[{repository}] {user} {action} [issue #{issue_number}]({url}): {issue_title}",
                     repository=repository,
                 )
-
             else:
                 await notify(
                     f"[{repository}] WARNING: unknown 'issues' action: {action}",
@@ -468,10 +477,16 @@ async def github(request):
                 "unpinned",
                 "reopened",
             ):
-                await notify(
-                    f"[{repository}] {user} {action} [pull request #{pull_request_number}]({url}): {pull_request_title}",
-                    repository=repository,
-                )
+                created_at = request.json["pull_request"]["created_at"]
+                created_seconds_ago = (datetime.datetime.now(datetime.UTC) - datetime.datetime.strptime(created_at, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc)).seconds
+                if action == "edited" and created_seconds_ago < 600:
+                    # Don't notify for edits in the 10 minutes after creation
+                    pass
+                else:
+                    await notify(
+                        f"[{repository}] {user} {action} [pull request #{pull_request_number}]({url}): {pull_request_title}",
+                        repository=repository,
+                    )
 
             elif action in ("labeled", "unlabeled"):
                 label = request.json["label"]["name"]
@@ -527,6 +542,11 @@ async def github(request):
                     f"[{repository}] Auto-merge has been enabled by {user} on [pull request #{pull_request_number}]({url}): {pull_request_title}",
                     repository=repository,
                 )
+            elif action == "auto_merge_disabled":
+                await notify(
+                    f"[{repository}] Auto-merge has been disabled by {user} on [pull request #{pull_request_number}]({url}): {pull_request_title}",
+                    repository=repository,
+                )
 
             elif action in (
                 "review_requested",
@@ -566,10 +586,14 @@ async def github(request):
             release_tag = request.json["release"]["tag_name"]
             release_title = request.json["release"]["name"]
 
-            await notify(
-                f"[repository] {user} {action} [new release #{release_tag}]({url}) {release_title}",
-                repository=repository,
-            )
+            if user == "github-actions[bot]" and action in ("released", "created"):
+                # Typically github action creating a release triggers 3 messages : released, created, published ...
+                pass
+            else:
+                await notify(
+                    f"[repository] {user} {action} [new release #{release_tag}]({url}) {release_title}",
+                    repository=repository,
+                )
 
         # https://developer.github.com/v3/activity/events/types/#statusevent
         elif hook_type == "status":
