@@ -175,42 +175,32 @@ async def github(request):
 
             branch = request.json["ref"].split("/", 2)[2]
 
-            if len(commits) == 1:
-                url = commits[0]["url"]
-                commit_message = (
-                    commits[0]["message"].replace("\r\n", " ").replace("\n", " ")
-                )
+            if len(commits) == 0:
+                return empty()  # case of 0 which means branch deletion
+            elif len(commits) <= 5:
 
-                if len(commit_message) > 120:
-                    commit_message = commit_message[:120] + "..."
+                for commit in commits:
 
-                commit_id = url.split("/")[-1][:8]
-                await notify(
-                    f"[{repository}] {user} pushed {len(commits)} commit to {branch}: {commit_message} ([{commit_id}]({url}))",
-                    repository=repository,
-                )
-            elif len(commits) > 1:
+                    url = commit["url"]
+                    commit_message = (
+                        commit["message"].replace("\r\n", " ").replace("\n", " ")
+                    )
+
+                    if len(commit_message) > 120:
+                        commit_message = commit_message[:120] + "..."
+
+                    commit_id = url.split("/")[-1][:8]
+                    await notify(
+                        f"[{repository}] {user} pushed to {branch}: {commit_message} ([{commit_id}]({url}))",
+                        repository=repository,
+                    )
+            else:
                 url = request.json["compare"]
                 commit_ids = url.split("/")[-1]
                 await notify(
                     f"[{repository}] {user} pushed {len(commits)} commits to {branch} ([{commit_ids}]({url}))",
                     repository=repository,
                 )
-                #for commit in commits[-3:]:
-                #    author = commit["author"]["name"]
-                #    commit_message = (
-                #        commit["message"].replace("\r\n", " ").replace("\n", " ")
-                #    )
-                #
-                #    if len(commit_message) > 120:
-                #        commit_message = commit_message[:120] + "..."
-                #
-                #    await notify(
-                #        f"[{repository}/{branch}] {commit_message} - {author}",
-                #        repository=repository,
-                #    )
-            else:
-                ...  # case of 0 which means branch deletion
 
         # https://developer.github.com/v3/activity/events/types/#commitcommentevent
         elif hook_type == "commit_comment":
@@ -242,7 +232,7 @@ async def github(request):
                     repository=repository,
                 )
             elif kind == "branch":
-                pass
+                return empty()
                 #branch = request.json["ref"]
                 #await notify(
                 #    f"[{repository}] {user} created new branch {branch}",
@@ -335,7 +325,7 @@ async def github(request):
                 created_seconds_ago = (datetime.datetime.now(datetime.UTC) - datetime.datetime.strptime(created_at, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc)).seconds
                 if action == "edited" and created_seconds_ago < 600:
                     # Don't notify for edits in the 10 minutes after creation
-                    pass
+                    return empty()
                 else:
                     await notify(
                         f"[{repository}] {user} {action} [issue #{issue_number}]({url}): {issue_title}",
@@ -350,7 +340,7 @@ async def github(request):
                 )
 
             elif action in ("labeled", "unlabeled", "typed", "untyped"):
-                pass
+                return empty()
                 #label = request.json["label"]["name"]
                 #await notify(
                 #    f"[{repository}] {user} {action} {label} on [issue #{issue_number}]({url}): {issue_title}",
@@ -439,7 +429,7 @@ async def github(request):
 
                 # to avoid duplicated with pull_request_review_comment event
                 if state == "commented" and not comment:
-                    pass
+                    return empty()
                 else:
                     await notify(
                         f"[{repository}] {user} {state} [pull request #{pull_request_number}]({url}) {pull_request_title}{comment}",
@@ -481,7 +471,7 @@ async def github(request):
                 created_seconds_ago = (datetime.datetime.now(datetime.UTC) - datetime.datetime.strptime(created_at, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc)).seconds
                 if action == "edited" and created_seconds_ago < 600:
                     # Don't notify for edits in the 10 minutes after creation
-                    pass
+                    return empty()
                 else:
                     await notify(
                         f"[{repository}] {user} {action} [pull request #{pull_request_number}]({url}): {pull_request_title}",
@@ -489,11 +479,12 @@ async def github(request):
                     )
 
             elif action in ("labeled", "unlabeled"):
-                label = request.json["label"]["name"]
-                await notify(
-                    f"[{repository}] {user} {action} {label} on [pull request #{pull_request_number}]({url}): {pull_request_title}",
-                    repository=repository,
-                )
+                return empty()
+                #label = request.json["label"]["name"]
+                #await notify(
+                #    f"[{repository}] {user} {action} {label} on [pull request #{pull_request_number}]({url}): {pull_request_title}",
+                #    repository=repository,
+                #)
 
             elif action == "closed":
                 if request.json["pull_request"]["merged"]:
@@ -553,7 +544,8 @@ async def github(request):
                 "review_request_removed",
                 "synchronize",
             ):
-                pass  # we don't care about those...
+                # we don't care about those...
+                return empty()
 
             else:
                 await notify(
@@ -581,19 +573,20 @@ async def github(request):
         # https://developer.github.com/v3/activity/events/types/#releaseevent
         elif hook_type == "release":
             action = request.json["action"]
-            user = user_noping(request.json["sender"]["login"])
+            user = request.json["sender"]["login"]
             url = request.json["release"]["html_url"]
             release_tag = request.json["release"]["tag_name"]
             release_title = request.json["release"]["name"]
 
             if user == "github-actions[bot]" and action in ("released", "created"):
                 # Typically github action creating a release triggers 3 messages : released, created, published ...
-                pass
-            else:
-                await notify(
-                    f"[repository] {user} {action} [new release #{release_tag}]({url}) {release_title}",
-                    repository=repository,
-                )
+                return empty()
+
+            user = user_noping(user)
+            await notify(
+                f"[repository] {user} {action} [new release #{release_tag}]({url}) {release_title}",
+                repository=repository,
+            )
 
         # https://developer.github.com/v3/activity/events/types/#statusevent
         elif hook_type == "status":
