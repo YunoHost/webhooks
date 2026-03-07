@@ -3,6 +3,7 @@ import hashlib
 import asyncio
 
 import datetime
+from pathlib import Path
 from sanic import Sanic
 from sanic.response import text, empty
 from sanic.exceptions import abort
@@ -33,6 +34,7 @@ SPECIFIC_REPO_TO_CHANNEL_MAPPING = {
     "package_check": "apps",
 }
 
+
 @cache
 def popularity() -> list[tuple[str, int]]:
     result = requests.get("https://apps.yunohost.org/popularity.json")
@@ -55,6 +57,7 @@ def read_app_list() -> list[str]:
     ]
     return l
 
+
 @cache
 def MOST_POPULAR_APPS() -> list[str]:
     pop = popularity()
@@ -63,6 +66,40 @@ def MOST_POPULAR_APPS() -> list[str]:
     most_popular.append("example")
 
     return most_popular
+
+
+@cache
+def GITHUB_TOKEN() -> str | None:
+    if Path("./.github_token").exists():
+        return open("./.github_token", "r").read().strip()
+    return None
+
+
+def maybeInviteUser(github_username: str, repository: str):
+    if GITHUB_TOKEN() is None:
+        print("No github token found, cannot invite user to repo if needed")
+        return
+
+    r = requests.put(
+        f"https://api.github.com/repos/YunoHost-Apps/{repository}/collaborators/{github_username}",
+        headers={
+            "Authorization": f"Bearer {GITHUB_TOKEN()}",
+            "Content-Type": "application/json",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+        },
+        json={"permission": "maintain"},
+    )
+
+    if r.status_code == 201:
+        print(f"Invited {github_username} to {repository} repository")
+    elif r.status_code == 204:
+        print(f"{github_username} is already a collaborator of {repository} repository")
+    else:
+        print(
+            f"Failed to invite {github_username} to {repository} repository, status code: {r.status_code}, response: {r.text}"
+        )
+
 
 # TODO
 # * choper tous les templates de notification
@@ -564,6 +601,8 @@ async def github(request):
                 f"{user} {action} repository {repository}{description} {url}",
                 repository=repository,
             )
+            if action == "transferred":
+                maybeInviteUser(request.json["sender"]["login"], repository)
 
         # https://developer.github.com/v3/activity/events/types/#releaseevent
         elif hook_type == "release":
