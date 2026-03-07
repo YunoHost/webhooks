@@ -7,12 +7,13 @@ from sanic import Sanic
 from sanic.response import text, empty
 from sanic.exceptions import abort
 
+from functools import cache
+import requests
+
 
 app = Sanic(name="Webhooks")
 
 secret = open("./github_webhook_secret", "r").read().strip()
-gitbot_password = open("./gitbot_password", "r").read().strip()
-
 
 CHANNELS = {
     "dev": "!oUChrIGPjhUkpgjYCW:matrix.org",
@@ -32,42 +33,36 @@ SPECIFIC_REPO_TO_CHANNEL_MAPPING = {
     "package_check": "apps",
 }
 
-# Most popular apps, compute it using something like:
-# $ curl -s https://apps.yunohost.org/popularity.json | jq -r 'to_entries | sort_by(.value) | from_entries' | tail -n 30 | tr -d ':,}' | awk '{print $1 ",  # " $2}'
-# Last update by Aleks, november 2024
+@cache
+def popularity() -> list[tuple[str, int]]:
+    result = requests.get("https://apps.yunohost.org/popularity.json")
+    result.raise_for_status()
+    l = [(k, result.json()[k]) for k in result.json().keys()]
+    l.sort(key=lambda x: x[1], reverse=True)
+    return l
 
-MOST_POPULAR_APPS = [
-    "calibreweb",  # 42
-    "mastodon",  # 43
-    "beeper",  # 44
-    "cryptpad",  # 44
-    "joplin",  # 44
-    "piped",  # 44
-    # "anki-sync-server", # 45 # only in wishlist
-    "stirling-pdf",  # 46
-    # "vpn-server",  # 46 # only in wishlist
-    "element",  # 47
-    "collabora",  # 51
-    "penpot",  # 52
-    "snappymail",  # 52
-    "syncthing",  # 53
-    "jellyfin",  # 54
-    "rustdesk-server",  # 54 # only in wishlist
-    "searxng",  # 54
-    "borg",  # 55
-    # "bigbluebutton",  # 56 # only in wishlist
-    "synapse",  # 57
-    "wireguard",  # 61
-    # "appflowy", # 63 # only in wishlist
-    "freshrss",  # 68
-    "wallabag2",  # 74
-    "roundcube",  # 75
-    "redirect",  # 80
-    "my_webapp",  # 87
-    "vaultwarden",  # 88
-    "nextcloud",  # 237
-    "example",  # 777, such a popular app !
-]
+
+@cache
+def read_app_list() -> list[str]:
+    result = requests.get("https://apps.yunohost.org//default/v3/apps.json")
+    result.raise_for_status()
+    apps = result.json()["apps"]
+    l = [
+        k
+        for k in apps.keys()
+        if "deprecated-software" not in apps[k]["antifeatures"]
+        and "package-not-maintained" not in apps[k]["antifeatures"]
+    ]
+    return l
+
+@cache
+def MOST_POPULAR_APPS() -> list[str]:
+    pop = popularity()
+    app_list = read_app_list()
+    most_popular = [app for app, _ in pop if app in app_list][:29]
+    most_popular.append("example")
+
+    return most_popular
 
 # TODO
 # * choper tous les templates de notification
@@ -150,7 +145,7 @@ async def github(request):
         elif (
             repository.endswith("_ynh")
             and hook_type != "repository"
-            and repository.replace("_ynh", "") not in MOST_POPULAR_APPS
+            and repository.replace("_ynh", "") not in MOST_POPULAR_APPS()
         ):
             return empty()
 
