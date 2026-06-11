@@ -339,13 +339,9 @@ async def github(request):
                     repository=repository,
                 )
 
-            elif action in ("labeled", "unlabeled", "typed", "untyped"):
+            elif action in ("labeled", "unlabeled", "typed", "untyped", "field_added", "field_removed"):
+                # ignore these
                 return empty()
-                #label = request.json["label"]["name"]
-                #await notify(
-                #    f"[{repository}] {user} {action} {label} on [issue #{issue_number}]({url}): {issue_title}",
-                #    repository=repository,
-                #)
 
             elif action == "milestoned":
                 milestone = request.json["issue"]["milestone"]["title"]
