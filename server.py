@@ -89,7 +89,7 @@ async def notify(message, repository="dev"):
     for char in ["'", "`", "!", ";", "$"]:
         message = message.replace(char, "")
 
-    command = f"{APP_DIR}/matrix-commander --markdown -m '{message}' -c {APP_DIR}/credentials.json --store {APP_DIR}/store --sync off --room '{chan}'"
+    command = f"{APP_DIR}/matrix-commander --notice --markdown -m '{message}' -c {APP_DIR}/credentials.json --store {APP_DIR}/store --sync off --room '{chan}'"
     proc = await asyncio.create_subprocess_shell(command)
     try:
         await proc.communicate()
