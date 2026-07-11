@@ -517,7 +517,7 @@ async def github(request):
                     repository=repository,
                 )
 
-            elif action == "assigned":
+            elif action in ("assigned", "unassigned"):
                 assigned_user = request.json["assignee"]["login"]
                 await notify(
                     f"[{repository}] {user} {action} {assigned_user} on [pull request #{pull_request_number}]({url}): {pull_request_title}",
