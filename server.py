@@ -13,6 +13,7 @@ app = Sanic(name="Webhooks")
 secret = open("./github_webhook_secret", "r").read().strip()
 gitbot_password = open("./gitbot_password", "r").read().strip()
 
+zwsp = "\u200b" # zero-width space, because some XMPP clients do not handle well a link followed by a colon
 
 CHANNELS = {
     "dev": "!oUChrIGPjhUkpgjYCW:matrix.org",
@@ -307,7 +308,7 @@ async def github(request):
 
             if action == "opened":
                 await notify(
-                    f"[{repository}] {user} {action} [issue #{issue_number}]({url}): {issue_title}",
+                    f"[{repository}] {user} {action} [issue #{issue_number}]({url}){zwsp}: {issue_title}",
                     repository=repository,
                 )
 
@@ -328,14 +329,14 @@ async def github(request):
                     return empty()
                 else:
                     await notify(
-                        f"[{repository}] {user} {action} [issue #{issue_number}]({url}): {issue_title}",
+                        f"[{repository}] {user} {action} [issue #{issue_number}]({url}){zwsp}: {issue_title}",
                         repository=repository,
                     )
 
             elif action in ("assigned", "unassigned"):
                 assigned_user = request.json["assignee"]["login"]
                 await notify(
-                    f"[{repository}] {user} {action} {assigned_user} on [issue #{issue_number}]({url}): {issue_title}",
+                    f"[{repository}] {user} {action} {assigned_user} on [issue #{issue_number}]({url}){zwsp}: {issue_title}",
                     repository=repository,
                 )
 
@@ -346,13 +347,13 @@ async def github(request):
             elif action == "milestoned":
                 milestone = request.json["issue"]["milestone"]["title"]
                 await notify(
-                    f"[{repository}] {user} set {milestone} on [issue #{issue_number}]({url}): {issue_title}",
+                    f"[{repository}] {user} set {milestone} on [issue #{issue_number}]({url}){zwsp}: {issue_title}",
                     repository=repository,
                 )
 
             elif action == "demilestoned":
                 await notify(
-                    f"[{repository}] {user} {action} [issue #{issue_number}]({url}): {issue_title}",
+                    f"[{repository}] {user} {action} [issue #{issue_number}]({url}){zwsp}: {issue_title}",
                     repository=repository,
                 )
             else:
@@ -434,7 +435,7 @@ async def github(request):
 
             else:
                 await notify(
-                    f"[{repository}] {user} {action} review [pull request #{pull_request_number}]({url}): {pull_request_title}",
+                    f"[{repository}] {user} {action} review [pull request #{pull_request_number}]({url}){zwsp}: {pull_request_title}",
                     repository=repository,
                 )
 
@@ -470,7 +471,7 @@ async def github(request):
                     return empty()
                 else:
                     await notify(
-                        f"[{repository}] {user} {action} [pull request #{pull_request_number}]({url}): {pull_request_title}",
+                        f"[{repository}] {user} {action} [pull request #{pull_request_number}]({url}){zwsp}: {pull_request_title}",
                         repository=repository,
                     )
 
@@ -478,7 +479,7 @@ async def github(request):
                 return empty()
                 #label = request.json["label"]["name"]
                 #await notify(
-                #    f"[{repository}] {user} {action} {label} on [pull request #{pull_request_number}]({url}): {pull_request_title}",
+                #    f"[{repository}] {user} {action} {label} on [pull request #{pull_request_number}]({url}){zwsp}: {pull_request_title}",
                 #    repository=repository,
                 #)
 
@@ -486,7 +487,7 @@ async def github(request):
                 if request.json["pull_request"]["merged"]:
                     action = "merged"
                 await notify(
-                    f"[{repository}] {user} {action} [pull request #{pull_request_number}]({url}): {pull_request_title}",
+                    f"[{repository}] {user} {action} [pull request #{pull_request_number}]({url}){zwsp}: {pull_request_title}",
                     repository=repository,
                 )
 
@@ -500,38 +501,38 @@ async def github(request):
             elif action == "milestoned":
                 milestone = request.json["pull_request"]["milestone"]
                 await notify(
-                    f"[{repository}] {user} set {milestone} [pull request #{pull_request_number}]({url}): {pull_request_title}",
+                    f"[{repository}] {user} set {milestone} [pull request #{pull_request_number}]({url}){zwsp}: {pull_request_title}",
                     repository=repository,
                 )
 
             # super weird, this action is not supposed to be possible for pull_request :|
             elif action == "demilestoned":
                 await notify(
-                    f"[{repository}] {user} {action} [pull request #{pull_request_number}]({url}): {pull_request_title}",
+                    f"[{repository}] {user} {action} [pull request #{pull_request_number}]({url}){zwsp}: {pull_request_title}",
                     repository=repository,
                 )
 
             elif action == "converted_to_draft":
                 await notify(
-                    f"[{repository}] {user} converted to draft the [pull request #{pull_request_number}]({url}): {pull_request_title}",
+                    f"[{repository}] {user} converted to draft the [pull request #{pull_request_number}]({url}){zwsp}: {pull_request_title}",
                     repository=repository,
                 )
 
             elif action == "assigned":
                 assigned_user = request.json["assignee"]["login"]
                 await notify(
-                    f"[{repository}] {user} {action} {assigned_user} on [pull request #{pull_request_number}]({url}): {pull_request_title}",
+                    f"[{repository}] {user} {action} {assigned_user} on [pull request #{pull_request_number}]({url}){zwsp}: {pull_request_title}",
                     repository=repository,
                 )
 
             elif action == "auto_merge_enabled":
                 await notify(
-                    f"[{repository}] Auto-merge has been enabled by {user} on [pull request #{pull_request_number}]({url}): {pull_request_title}",
+                    f"[{repository}] Auto-merge has been enabled by {user} on [pull request #{pull_request_number}]({url}){zwsp}: {pull_request_title}",
                     repository=repository,
                 )
             elif action == "auto_merge_disabled":
                 await notify(
-                    f"[{repository}] Auto-merge has been disabled by {user} on [pull request #{pull_request_number}]({url}): {pull_request_title}",
+                    f"[{repository}] Auto-merge has been disabled by {user} on [pull request #{pull_request_number}]({url}){zwsp}: {pull_request_title}",
                     repository=repository,
                 )
 
