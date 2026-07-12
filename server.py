@@ -141,7 +141,7 @@ async def github(request):
         # do not notify if the repo is 'apps_translations'
         if repository == "apps_translations":
             return empty()
-        # for apps repo, only notify for apps that are in the hardcoded most popular apps
+        # for apps repo, only notify for apps that are in the most popular apps
         elif (
             repository.endswith("_ynh")
             and hook_type != "repository"
