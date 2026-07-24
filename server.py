@@ -7,9 +7,12 @@ from sanic import Sanic
 from sanic.response import text, empty
 from sanic.exceptions import abort
 
-from functools import cache
 import requests
 
+from cachetools import TTLCache, cached
+
+ttl = 7 * 24 * 60 * 60 # one week
+cache = TTLCache(maxsize=10_000, ttl=ttl)
 
 app = Sanic(name="Webhooks")
 
@@ -33,7 +36,7 @@ SPECIFIC_REPO_TO_CHANNEL_MAPPING = {
     "package_check": "apps",
 }
 
-@cache
+@cached(cache)
 def popularity() -> list[tuple[str, int]]:
     result = requests.get("https://apps.yunohost.org/popularity.json")
     result.raise_for_status()
@@ -42,7 +45,7 @@ def popularity() -> list[tuple[str, int]]:
     return l
 
 
-@cache
+@cached(cache)
 def read_app_list() -> list[str]:
     result = requests.get("https://apps.yunohost.org//default/v3/apps.json")
     result.raise_for_status()
@@ -55,7 +58,7 @@ def read_app_list() -> list[str]:
     ]
     return l
 
-@cache
+@cached(cache)
 def MOST_POPULAR_APPS() -> list[str]:
     pop = popularity()
     app_list = read_app_list()
